@@ -108,7 +108,7 @@ export default function Profile() {
       </motion.div>
       
       {/* Stats Cards */}
-      <div className="grid grid-cols-3 gap-3 px-4 -mt-6 mb-6">
+      <div className="grid grid-cols-3 gap-3 px-4 my-6">
         {stats.map((stat, index) => (
           <motion.div
             key={stat.label}
