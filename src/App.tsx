@@ -187,7 +187,7 @@ function AppContent() {
     <div className="min-h-screen bg-[var(--tg-bg)] relative">
       <FloatingParticles />
       <Header />
-      <main className="pb-20 pt-14 relative z-10">
+      <main className="pb-20 relative z-10">
         <AnimatedRoutes />
       </main>
       <BottomNav />
