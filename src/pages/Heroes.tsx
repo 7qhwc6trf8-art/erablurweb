@@ -5,7 +5,6 @@ import { type RootState } from '../app/store';
 import HeroCard from '../ui/HeroCard';
 import SearchBar from '../ui/SearchBar';
 import { Users } from 'lucide-react';
-import { useState } from 'react';
 
 const listVariants = {
   hidden: { opacity: 0 },
