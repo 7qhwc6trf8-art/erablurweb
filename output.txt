@@ -1,0 +1,475 @@
+products.ts
+export const products = [
+  {
+    id: 1,
+    name: 'iPhone 15 Pro',
+    price: 999,
+    image: 'https://via.placeholder.com/300',
+    desc: 'Powerful smartphone with A17 chip',
+  },
+  {
+    id: 2,
+    name: 'MacBook Air',
+    price: 1299,
+    image: 'https://via.placeholder.com/300',
+    desc: 'Lightweight laptop for professionals',
+  },
+]
+Product.tsx
+
+Home.tsx
+
+App.css
+.counter {
+  font-size: 16px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: var(--accent);
+  background: var(--accent-bg);
+  border: 2px solid transparent;
+  transition: border-color 0.3s;
+  margin-bottom: 24px;
+
+  &:hover {
+    border-color: var(--accent-border);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+.hero {
+  position: relative;
+
+  .base,
+  .framework,
+  .vite {
+    inset-inline: 0;
+    margin: 0 auto;
+  }
+
+  .base {
+    width: 170px;
+    position: relative;
+    z-index: 0;
+  }
+
+  .framework,
+  .vite {
+    position: absolute;
+  }
+
+  .framework {
+    z-index: 1;
+    top: 34px;
+    height: 28px;
+    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
+      scale(1.4);
+  }
+
+  .vite {
+    z-index: 0;
+    top: 107px;
+    height: 26px;
+    width: auto;
+    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
+      scale(0.8);
+  }
+}
+
+#center {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  place-content: center;
+  place-items: center;
+  flex-grow: 1;
+
+  @media (max-width: 1024px) {
+    padding: 32px 20px 24px;
+    gap: 18px;
+  }
+}
+
+#next-steps {
+  display: flex;
+  border-top: 1px solid var(--border);
+  text-align: left;
+
+  & > div {
+    flex: 1 1 0;
+    padding: 32px;
+    @media (max-width: 1024px) {
+      padding: 24px 20px;
+    }
+  }
+
+  .icon {
+    margin-bottom: 16px;
+    width: 22px;
+    height: 22px;
+  }
+
+  @media (max-width: 1024px) {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+#docs {
+  border-right: 1px solid var(--border);
+
+  @media (max-width: 1024px) {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+}
+
+#next-steps ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  gap: 8px;
+  margin: 32px 0 0;
+
+  .logo {
+    height: 18px;
+  }
+
+  a {
+    color: var(--text-h);
+    font-size: 16px;
+    border-radius: 6px;
+    background: var(--social-bg);
+    display: flex;
+    padding: 6px 12px;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    transition: box-shadow 0.3s;
+
+    &:hover {
+      box-shadow: var(--shadow);
+    }
+    .button-icon {
+      height: 18px;
+      width: 18px;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    margin-top: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    li {
+      flex: 1 1 calc(50% - 8px);
+    }
+
+    a {
+      width: 100%;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+  }
+}
+
+#spacer {
+  height: 88px;
+  border-top: 1px solid var(--border);
+  @media (max-width: 1024px) {
+    height: 48px;
+  }
+}
+
+.ticks {
+  position: relative;
+  width: 100%;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    top: -4.5px;
+    border: 5px solid transparent;
+  }
+
+  &::before {
+    left: 0;
+    border-left-color: var(--border);
+  }
+  &::after {
+    right: 0;
+    border-right-color: var(--border);
+  }
+}
+
+useTelegram.ts
+import { useTelegramWebApp } from '@telegram-web-app/react'
+
+export function useTelegram() {
+  const tg = useTelegramWebApp().WebApp
+
+  return {
+    tg,
+    user: tg.initDataUnsafe?.user,
+    theme: tg.themeParams,
+  }
+}
+App.tsx
+import { AppBar } from './ui/AppBar'
+import { Card } from './ui/Card'
+import { ListItem } from './ui/ListItem'
+import { Button } from './ui/TelegramButton'
+import { Avatar } from './ui/Avatar'
+import { Section } from './ui/Section'
+
+function App() {
+  return (
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
+
+      <AppBar
+        title="Telegram UI"
+        right={<Avatar name="John" />}
+      />
+
+      <div className="p-4 space-y-3">
+
+        <Card>
+          Welcome to Mini App 🚀
+        </Card>
+
+        <Section title="Menu" />
+
+        <ListItem title="Profile" />
+        <ListItem title="Settings" />
+        <ListItem title="Help" />
+
+        <Button onClick={() => alert('clicked')}>
+          Continue
+        </Button>
+
+        <Button variant="secondary">
+          Secondary
+        </Button>
+
+      </div>
+    </div>
+  )
+}
+
+export default App
+main.tsx
+import ReactDOM from 'react-dom/client'
+import App from './App'
+import { TelegramWebAppProvider } from '@telegram-web-app/react'
+import './index.css'
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <TelegramWebAppProvider>
+    <App />
+  </TelegramWebAppProvider>
+)
+telegram.d.ts
+export {}
+
+declare global {
+  interface TelegramUser {
+    id: number
+    first_name: string
+    last_name?: string
+    username?: string
+  }
+
+  interface TelegramWebAppInitDataUnsafe {
+    user?: TelegramUser
+  }
+
+  interface TelegramWebApp {
+    initDataUnsafe: TelegramWebAppInitDataUnsafe
+    close: () => void
+    ready: () => void
+    expand: () => void
+  }
+}
+Toast.tsx
+export function Toast({ message }: any) {
+  return (
+    <div className="fixed bottom-20 left-0 right-0 flex justify-center animate-fade-in">
+      <div className="bg-black/80 text-white px-4 py-2 rounded-xl text-sm">
+        {message}
+      </div>
+    </div>
+  )
+}
+Input.tsx
+export function Input(props: any) {
+  return (
+    <input
+      {...props}
+      className="w-full p-3 rounded-xl bg-[var(--card)] text-[var(--text)] outline-none placeholder:text-[var(--hint)]"
+    />
+  )
+}
+Avatar.tsx
+export function Avatar({ name }: any) {
+  return (
+    <div className="w-9 h-9 rounded-full bg-[var(--button)] flex items-center justify-center text-white font-bold">
+      {name?.[0] || "?"}
+    </div>
+  )
+}
+ListItem.tsx
+export function ListItem({ icon, title, onClick }: any) {
+  return (
+    <div
+      onClick={onClick}
+      className="flex items-center justify-between p-4 bg-[var(--card)] rounded-xl mb-2 active:scale-[0.98] transition cursor-pointer"
+    >
+      <div className="flex items-center gap-3">
+        {icon}
+        <span className="text-[var(--text)]">{title}</span>
+      </div>
+
+      <span className="text-[var(--hint)]">›</span>
+    </div>
+  )
+}
+Header.tsx
+import { useTelegramWebApp } from '@telegram-web-app/react'
+
+export function Header() {
+  const tg = useTelegramWebApp().WebApp
+  const user = tg.initDataUnsafe?.user
+  const theme = tg.themeParams
+
+  return (
+    <div
+      className="
+        sticky top-0 z-50
+        backdrop-blur-xl
+        bg-black/20
+        border-b border-white/5
+      "
+      style={{
+        background: theme.secondary_bg_color + 'cc',
+      }}
+    >
+      <div className="flex items-center justify-between px-4 py-3">
+
+        {/* 🪄 LEFT - Logo */}
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-400 to-blue-600 shadow-lg" />
+            <div className="absolute inset-0 rounded-xl blur-md opacity-40 bg-blue-500" />
+          </div>
+
+          <div className="flex flex-col leading-tight">
+            <span className="text-sm font-semibold text-[var(--tg-theme-text-color)]">
+              Premium App
+            </span>
+            <span className="text-[10px] opacity-60">
+              powered by Telegram
+            </span>
+          </div>
+        </div>
+
+        {/* 👤 RIGHT - User */}
+        <div className="flex items-center gap-3">
+
+          {/* Name */}
+          <div className="text-right leading-tight hidden sm:block">
+            <div className="text-sm font-medium text-[var(--tg-theme-text-color)]">
+              {user?.first_name}
+            </div>
+            <div className="text-[10px] opacity-60">
+              @{user?.username || 'user'}
+            </div>
+          </div>
+
+          {/* Avatar */}
+          <div className="relative">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 p-[2px]">
+              <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-white font-semibold text-sm">
+                {user?.first_name?.[0] || '?'}
+              </div>
+            </div>
+
+            {/* online dot */}
+            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-black rounded-full" />
+          </div>
+        </div>
+
+      </div>
+    </div>
+  )
+}
+Card.tsx
+export function Card({ children }: any) {
+  return (
+    <div className="bg-[var(--card)] rounded-2xl p-4 shadow-md active:scale-[0.99] transition">
+      {children}
+    </div>
+  )
+}
+TelegramButton.tsx
+export function Button({ children, onClick, variant = 'primary' }: any) {
+  const base =
+    "w-full py-3 rounded-xl font-medium transition active:scale-95"
+
+  const styles =
+    variant === 'primary'
+      ? "bg-[var(--button)] text-[var(--button-text)]"
+      : "bg-white/10 text-[var(--text)]"
+
+  return (
+    <button onClick={onClick} className={`${base} ${styles}`}>
+      {children}
+    </button>
+  )
+}
+Section.tsx
+export function Section({ title }: any) {
+  return (
+    <div className="mt-4 mb-2">
+      <h2 className="text-xs uppercase text-[var(--hint)] px-2">
+        {title}
+      </h2>
+    </div>
+  )
+}
+AppBar.tsx
+export function AppBar({ title, right }: any) {
+  return (
+    <div className="flex items-center justify-between px-4 py-3 bg-[var(--card)] border-b border-white/5">
+      <h1 className="text-base font-semibold text-[var(--text)]">
+        {title}
+      </h1>
+
+      <div>{right}</div>
+    </div>
+  )
+}
+index.css
+@import "tailwindcss";
+
+:root {
+  --bg: var(--tg-theme-bg-color);
+  --text: var(--tg-theme-text-color);
+  --hint: var(--tg-theme-hint-color);
+  --card: var(--tg-theme-secondary-bg-color);
+  --button: var(--tg-theme-button-color);
+  --button-text: var(--tg-theme-button-text-color);
+}
+theme.ts
+export function getTheme(tg: any) {
+  return {
+    bg: tg.themeParams.bg_color,
+    text: tg.themeParams.text_color,
+    hint: tg.themeParams.hint_color,
+    card: tg.themeParams.secondary_bg_color,
+    button: tg.themeParams.button_color,
+    buttonText: tg.themeParams.button_text_color,
+  }
+}

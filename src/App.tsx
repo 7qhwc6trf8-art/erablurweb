@@ -1,42 +1,83 @@
-import { AppBar } from './ui/AppBar'
-import { Card } from './ui/Card'
-import { ListItem } from './ui/ListItem'
-import { Button } from './ui/TelegramButton'
-import { Avatar } from './ui/Avatar'
-import { Section } from './ui/Section'
+import { useEffect } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { Toaster } from 'react-hot-toast';
+import { AnimatePresence } from 'framer-motion';
+
+import { useTelegram } from './hooks/useTelegram';
+import { RootState } from './app/store';
+import { setTheme } from './app/features/theme/themeSlice';
+
+import Header from './ui/Header';
+import BottomNav from './ui/BottomNav';
+import Home from './pages/Home';
+import Heroes from './pages/Heroes';
+import HeroDetail from './pages/HeroDetail';
+import Profile from './pages/Profile';
+import About from './pages/About';
 
 function App() {
+  const { tg } = useTelegram();
+  const { mode } = useSelector((state: RootState) => state.theme);
+  const dispatch = useDispatch();
+  
+  useEffect(() => {
+    tg.ready();
+    tg.expand();
+    
+    // Auto-detect system theme
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleSystemThemeChange = (e: MediaQueryListEvent) => {
+      if (mode === 'system') {
+        document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+      }
+    };
+    
+    mediaQuery.addEventListener('change', handleSystemThemeChange);
+    return () => mediaQuery.removeEventListener('change', handleSystemThemeChange);
+  }, [tg, mode]);
+  
+  useEffect(() => {
+    if (mode === 'system') {
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    } else {
+      document.documentElement.setAttribute('data-theme', mode);
+    }
+  }, [mode]);
+  
   return (
-    <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
-
-      <AppBar
-        title="Telegram UI"
-        right={<Avatar name="John" />}
-      />
-
-      <div className="p-4 space-y-3">
-
-        <Card>
-          Welcome to Mini App 🚀
-        </Card>
-
-        <Section title="Menu" />
-
-        <ListItem title="Profile" />
-        <ListItem title="Settings" />
-        <ListItem title="Help" />
-
-        <Button onClick={() => alert('clicked')}>
-          Continue
-        </Button>
-
-        <Button variant="secondary">
-          Secondary
-        </Button>
-
+    <BrowserRouter>
+      <div className="min-h-screen bg-[var(--tg-bg)]">
+        <Header />
+        
+        <main className="pt-14">
+          <AnimatePresence mode="wait">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/heroes" element={<Heroes />} />
+              <Route path="/hero/:id" element={<HeroDetail />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/about" element={<About />} />
+            </Routes>
+          </AnimatePresence>
+        </main>
+        
+        <BottomNav />
       </div>
-    </div>
-  )
+      
+      <Toaster
+        position="bottom-center"
+        toastOptions={{
+          duration: 2000,
+          style: {
+            background: 'var(--tg-secondary-bg)',
+            color: 'var(--tg-text)',
+          },
+        }}
+      />
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
