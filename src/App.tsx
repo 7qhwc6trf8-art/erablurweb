@@ -1,30 +1,16 @@
 import { useTelegramWebApp } from '@telegram-web-app/react'
 
 function App() {
-  useTelegramWebApp()
-  if (!window.Telegram) {
-    return (
-      <div>Not found</div>
-    )
-  }
-  const user = window?.Telegram?.WebApp?.initDataUnsafe?.user;
-  const tg = useTelegramWebApp().WebApp;
+  const tg = useTelegramWebApp() as unknown as TelegramWebApp
+
+  const user = tg.initDataUnsafe?.user
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>My First Telegram App 🚀</h1>
+    <div>
+      <h1>Hello {user?.first_name}</h1>
 
-      {user ? (
-        <>
-          <p>👤 {user.first_name}</p>
-          <p>🆔 {user.id}</p>
-        </>
-      ) : (
-        <p>Open inside Telegram</p>
-      )}
-
-      <button onClick={() => tg?.close()}>
-        Close App
+      <button onClick={() => tg.close()}>
+        Close
       </button>
     </div>
   )
