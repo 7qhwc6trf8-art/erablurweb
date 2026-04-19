@@ -84,7 +84,7 @@ export default function Heroes() {
               animate="show"
               className="space-y-3"
             >
-              {filteredList.map((hero, index) => (
+              {filteredList.map((hero: any, index) => (
                 <HeroCard
                   key={hero.id}
                   hero={hero}

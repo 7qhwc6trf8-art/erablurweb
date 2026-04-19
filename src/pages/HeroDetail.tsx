@@ -1,6 +1,5 @@
 // src/pages/HeroDetail.tsx
-// ULTRA PREMIUM PRO MAX 2026 DESIGN - Fully Animated, Elegant, Professional
-// WITH COMPLETE COMMENTS SECTION - Read/Write/Like/Reply/Report
+// ULTRA PREMIUM PRO MAX 2026 DESIGN - Fully Animated with Armenian Hero Data Structure
 
 import {
 	motion,
@@ -27,6 +26,7 @@ import {
 	Users,
 	Flag,
 	Clock,
+	MapPin,
 	MessageCircle,
 	Send,
 	MoreVertical,
@@ -39,6 +39,16 @@ import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 
 // ==================== TYPES ====================
+
+interface HeroData {
+	name: { first: string; last: string };
+	date: { birth: string; dead: string };
+	region: string;
+	war: string;
+	img_url: string;
+	bio_link: string;
+	bio: string;
+}
 
 interface Reply {
 	id: string;
@@ -151,6 +161,38 @@ export const buttonHover = {
 	},
 };
 
+// ==================== UTILITY FUNCTIONS ====================
+
+const sanitizeHtml = (html: string): string => {
+	if (!html) return "";
+	// Remove HTML tags but keep line breaks
+	const text = html.replace(/<[^>]*>/g, " ");
+	// Remove duplicate spaces
+	return text.replace(/\s+/g, " ").trim();
+};
+
+const extractBioParagraphs = (bio: string): string[] => {
+	if (!bio) return [];
+	const cleanText = sanitizeHtml(bio);
+	// Split by periods or new lines
+	const sentences = cleanText.split(/[.!?։՞՛]+/);
+	return sentences.filter((s) => s.trim().length > 20).slice(0, 8);
+};
+
+const extractAchievements = (bio: string): string[] => {
+	if (!bio) return [];
+	const cleanText = sanitizeHtml(bio);
+	const lines = cleanText.split(/[.!?։՞՛]+/);
+	// Extract meaningful achievements (lines with certain keywords or length)
+	const keywords = ["պայքար", "մարտ", "հերոս", "պարգև", "մեդալ", "շքանշան"];
+	const achievements = lines.filter(
+		(line) =>
+			line.length > 30 &&
+			keywords.some((kw) => line.toLowerCase().includes(kw)),
+	);
+	return achievements.slice(0, 5);
+};
+
 // ==================== COMMENT ITEM COMPONENT ====================
 
 interface CommentItemProps {
@@ -186,9 +228,13 @@ function CommentItem({
 	};
 
 	return (
-		<motion.div variants={fadeInUp} initial="initial" animate="animate" className="group">
+		<motion.div
+			variants={fadeInUp}
+			initial="initial"
+			animate="animate"
+			className="group"
+		>
 			<div className="flex gap-3">
-				{/* Avatar */}
 				<motion.div
 					whileHover={{ scale: 1.05 }}
 					className="w-10 h-10 rounded-full bg-gradient-to-br from-red-600 to-yellow-600 flex items-center justify-center shrink-0"
@@ -198,7 +244,6 @@ function CommentItem({
 					</span>
 				</motion.div>
 
-				{/* Comment Content */}
 				<div className="flex-1">
 					<div className="bg-[var(--tg-secondary-bg)] rounded-2xl p-3">
 						<div className="flex items-center justify-between mb-1">
@@ -207,7 +252,9 @@ function CommentItem({
 									{comment.userName}
 								</span>
 								<span className="text-xs text-[var(--tg-hint)]">
-									{new Date(comment.timestamp).toLocaleDateString()}
+									{new Date(
+										comment.timestamp,
+									).toLocaleDateString()}
 								</span>
 							</div>
 
@@ -217,15 +264,30 @@ function CommentItem({
 									onClick={() => setShowActions(!showActions)}
 									className="p-1 rounded-full hover:bg-white/10 transition"
 								>
-									<MoreVertical size={14} className="text-[var(--tg-hint)]" />
+									<MoreVertical
+										size={14}
+										className="text-[var(--tg-hint)]"
+									/>
 								</motion.button>
 
 								<AnimatePresence>
 									{showActions && (
 										<motion.div
-											initial={{ opacity: 0, scale: 0.9, y: -10 }}
-											animate={{ opacity: 1, scale: 1, y: 0 }}
-											exit={{ opacity: 0, scale: 0.9, y: -10 }}
+											initial={{
+												opacity: 0,
+												scale: 0.9,
+												y: -10,
+											}}
+											animate={{
+												opacity: 1,
+												scale: 1,
+												y: 0,
+											}}
+											exit={{
+												opacity: 0,
+												scale: 0.9,
+												y: -10,
+											}}
 											className="absolute right-0 top-6 bg-[var(--tg-bg)] border border-[var(--tg-secondary-bg)] rounded-xl shadow-xl z-10 min-w-[120px] overflow-hidden"
 										>
 											<button
@@ -249,7 +311,6 @@ function CommentItem({
 						</p>
 					</div>
 
-					{/* Action Buttons */}
 					<div className="flex items-center gap-4 mt-1 ml-2">
 						<motion.button
 							whileTap={{ scale: 0.9 }}
@@ -273,12 +334,20 @@ function CommentItem({
 							whileTap={{ scale: 0.9 }}
 							onClick={() => {
 								setIsReplying(!isReplying);
-								setTimeout(() => inputRef.current?.focus(), 100);
+								setTimeout(
+									() => inputRef.current?.focus(),
+									100,
+								);
 							}}
 							className="flex items-center gap-1 py-1 px-2 rounded-full hover:bg-white/10 transition"
 						>
-							<Reply size={12} className="text-[var(--tg-hint)]" />
-							<span className="text-xs text-[var(--tg-hint)]">Reply</span>
+							<Reply
+								size={12}
+								className="text-[var(--tg-hint)]"
+							/>
+							<span className="text-xs text-[var(--tg-hint)]">
+								Reply
+							</span>
 						</motion.button>
 
 						{comment.replies.length > 0 && (
@@ -294,7 +363,6 @@ function CommentItem({
 						)}
 					</div>
 
-					{/* Reply Input */}
 					<AnimatePresence>
 						{isReplying && (
 							<motion.div
@@ -307,8 +375,12 @@ function CommentItem({
 									ref={inputRef}
 									type="text"
 									value={replyText}
-									onChange={(e) => setReplyText(e.target.value)}
-									onKeyPress={(e) => e.key === "Enter" && handleSubmitReply()}
+									onChange={(e) =>
+										setReplyText(e.target.value)
+									}
+									onKeyPress={(e) =>
+										e.key === "Enter" && handleSubmitReply()
+									}
 									placeholder="Write a reply..."
 									className="flex-1 py-2 px-3 rounded-xl bg-[var(--tg-secondary-bg)] text-[var(--tg-text)] text-sm outline-none"
 								/>
@@ -324,7 +396,6 @@ function CommentItem({
 						)}
 					</AnimatePresence>
 
-					{/* Replies List */}
 					<AnimatePresence>
 						{showReplies && comment.replies.length > 0 && (
 							<motion.div
@@ -347,10 +418,14 @@ function CommentItem({
 														{reply.userName}
 													</span>
 													<span className="text-xs text-[var(--tg-hint)]">
-														{new Date(reply.timestamp).toLocaleDateString()}
+														{new Date(
+															reply.timestamp,
+														).toLocaleDateString()}
 													</span>
 												</div>
-												<p className="text-xs text-[var(--tg-text)]">{reply.text}</p>
+												<p className="text-xs text-[var(--tg-text)]">
+													{reply.text}
+												</p>
 											</div>
 										</div>
 									</div>
@@ -375,17 +450,33 @@ export default function HeroDetail() {
 	const [commentText, setCommentText] = useState("");
 	const [comments, setComments] = useState<Comment[]>([]);
 	const [isLoadingComments, setIsLoadingComments] = useState(true);
+	const [bioParagraphs, setBioParagraphs] = useState<string[]>([]);
+	const [achievements, setAchievements] = useState<string[]>([]);
 	const headerRef = useRef<HTMLDivElement>(null);
 	const commentsEndRef = useRef<HTMLDivElement>(null);
 	const { scrollY } = useScroll();
 
-	const hero = useSelector((state: RootState) =>
-		state.heroes.list.find((h) => h.id === Number(id)),
-	);
+	const heroData = useSelector((state: RootState) => {
+		console.log(state.heroes.list);
+		return state.heroes.list[id];
+	});
 
 	const isFavorite = useSelector((state: RootState) =>
 		state.heroes.favorites.includes(Number(id)),
 	);
+
+	// Process hero data for display
+	useEffect(() => {
+		if (heroData) {
+			// Extract bio paragraphs from HTML
+			const paragraphs = extractBioParagraphs(heroData.bio);
+			setBioParagraphs(paragraphs);
+
+			// Extract achievements from bio
+			const extractedAchievements = extractAchievements(heroData.bio);
+			setAchievements(extractedAchievements);
+		}
+	}, [heroData]);
 
 	// Parallax effect
 	const headerOpacity = useTransform(scrollY, [0, 200], [1, 0]);
@@ -395,10 +486,13 @@ export default function HeroDetail() {
 	// Load comments from localStorage
 	useEffect(() => {
 		window.scrollTo(0, 0);
-		if (hero) {
-			document.title = `${hero.name} - Heroes Museum`;
+		if (heroData) {
+			const fullName = `${heroData.name.first} ${heroData.name.last}`;
+			document.title = `${fullName} - Heroes Museum`;
 
-			const savedComments = localStorage.getItem(`hero_comments_${hero.id}`);
+			const savedComments = localStorage.getItem(
+				`hero_comments_${heroData.name.first}_${heroData.name.last}`,
+			);
 			if (savedComments) {
 				setComments(JSON.parse(savedComments));
 			} else {
@@ -407,8 +501,10 @@ export default function HeroDetail() {
 						id: "1",
 						userId: 1001,
 						userName: "ArmenianPatriot",
-						text: "A true hero who will never be forgotten. His sacrifice for our homeland inspires generations.",
-						timestamp: new Date(Date.now() - 86400000).toISOString(),
+						text: "Հավերժ փառք հերոսին! Նրա զոհաբերությունը երբեք չի մոռացվի: 🇦🇲",
+						timestamp: new Date(
+							Date.now() - 86400000,
+						).toISOString(),
 						likes: 24,
 						isLiked: false,
 						replies: [
@@ -416,8 +512,10 @@ export default function HeroDetail() {
 								id: "r1",
 								userId: 1002,
 								userName: "HeroLover",
-								text: "Well said! 🇦🇲",
-								timestamp: new Date(Date.now() - 72000000).toISOString(),
+								text: "Անմահ հերոս!",
+								timestamp: new Date(
+									Date.now() - 72000000,
+								).toISOString(),
 								likes: 5,
 							},
 						],
@@ -427,28 +525,36 @@ export default function HeroDetail() {
 						userId: 1003,
 						userName: "YerevanSpirit",
 						text: "We owe our freedom to heroes like him. Eternal glory!",
-						timestamp: new Date(Date.now() - 172800000).toISOString(),
+						timestamp: new Date(
+							Date.now() - 172800000,
+						).toISOString(),
 						likes: 15,
 						isLiked: false,
 						replies: [],
 					},
 				];
 				setComments(demoComments);
-				localStorage.setItem(`hero_comments_${hero.id}`, JSON.stringify(demoComments));
+				localStorage.setItem(
+					`hero_comments_${heroData.name.first}_${heroData.name.last}`,
+					JSON.stringify(demoComments),
+				);
 			}
 			setIsLoadingComments(false);
 		}
-	}, [hero]);
+	}, [heroData]);
 
 	// Save comments to localStorage
 	const saveComments = (newComments: Comment[]) => {
-		if (hero) {
-			localStorage.setItem(`hero_comments_${hero.id}`, JSON.stringify(newComments));
+		if (heroData) {
+			localStorage.setItem(
+				`hero_comments_${heroData.name.first}_${heroData.name.last}`,
+				JSON.stringify(newComments),
+			);
 			setComments(newComments);
 		}
 	};
 
-	if (!hero) {
+	if (!heroData) {
 		return (
 			<motion.div
 				variants={pageVariants}
@@ -465,28 +571,37 @@ export default function HeroDetail() {
 					>
 						🕯️
 					</motion.div>
-					<p className="text-[var(--tg-hint)] text-lg mb-4">Hero not found</p>
+					<p className="text-[var(--tg-hint)] text-lg mb-4">
+						Հերոսը չի գտնվել
+					</p>
 					<motion.button
 						whileTap={buttonTap}
 						whileHover={buttonHover}
 						onClick={() => navigate("/")}
 						className="tg-button px-8 py-3 rounded-2xl text-base font-medium"
 					>
-						Return Home
+						Վերադառնալ
 					</motion.button>
 				</div>
 			</motion.div>
 		);
 	}
 
+	const fullName = `${heroData.name.first} ${heroData.name.last}`;
+	const birthYear = heroData.date.birth;
+	const deathYear = heroData.date.dead;
+
 	const handleFavorite = async () => {
 		hapticFeedback?.impact("light");
 		setIsLikedAnimating(true);
-		dispatch(toggleFavorite(hero.id));
-		toast.success(isFavorite ? "Removed from favorites" : "Added to favorites", {
-			icon: isFavorite ? "💔" : "❤️",
-			duration: 2000,
-		});
+		dispatch(toggleFavorite(heroData.id));
+		toast.success(
+			isFavorite ? "Removed from favorites" : "Added to favorites",
+			{
+				icon: isFavorite ? "💔" : "❤️",
+				duration: 2000,
+			},
+		);
 		setTimeout(() => setIsLikedAnimating(false), 500);
 	};
 
@@ -506,7 +621,9 @@ export default function HeroDetail() {
 		const newComment: Comment = {
 			id: Date.now().toString(),
 			userId: user?.id || 0,
-			userName: user?.first_name ? `${user.first_name} ${user.last_name || ""}`.trim() : "Anonymous",
+			userName: user?.first_name
+				? `${user.first_name} ${user.last_name || ""}`.trim()
+				: "Anonymous",
 			text: commentText.trim(),
 			timestamp: new Date().toISOString(),
 			likes: 0,
@@ -529,7 +646,9 @@ export default function HeroDetail() {
 			if (comment.id === commentId) {
 				return {
 					...comment,
-					likes: comment.isLiked ? comment.likes - 1 : comment.likes + 1,
+					likes: comment.isLiked
+						? comment.likes - 1
+						: comment.likes + 1,
 					isLiked: !comment.isLiked,
 				};
 			}
@@ -543,7 +662,9 @@ export default function HeroDetail() {
 		const newReply: Reply = {
 			id: Date.now().toString(),
 			userId: user?.id || 0,
-			userName: user?.first_name ? `${user.first_name} ${user.last_name || ""}`.trim() : "Anonymous",
+			userName: user?.first_name
+				? `${user.first_name} ${user.last_name || ""}`.trim()
+				: "Anonymous",
 			text: replyText,
 			timestamp: new Date().toISOString(),
 			likes: 0,
@@ -564,7 +685,10 @@ export default function HeroDetail() {
 
 	const handleReportComment = (commentId: string) => {
 		hapticFeedback?.impact("heavy");
-		toast.success("Comment reported. Our team will review it.", { icon: "🚩", duration: 2000 });
+		toast.success("Comment reported. Our team will review it.", {
+			icon: "🚩",
+			duration: 2000,
+		});
 	};
 
 	return (
@@ -607,7 +731,11 @@ export default function HeroDetail() {
 						}}
 						animate={{
 							y: [null, -200, -400],
-							x: [null, Math.random() * 200 - 100, Math.random() * 400 - 200],
+							x: [
+								null,
+								Math.random() * 200 - 100,
+								Math.random() * 400 - 200,
+							],
 							opacity: [0, Math.random() * 0.5 + 0.3, 0],
 							scale: [0, Math.random() * 2 + 0.5, 0],
 						}}
@@ -637,10 +765,10 @@ export default function HeroDetail() {
 					animate="animate"
 					className="absolute inset-0 bg-gradient-to-br from-red-700 via-red-600 to-yellow-700"
 				>
-					{hero.image && (
+					{heroData.img_url && (
 						<motion.img
-							src={hero.image}
-							alt={hero.name}
+							src={heroData.img_url}
+							alt={fullName}
 							className="w-full h-full object-cover"
 							style={{ objectPosition: "center 30%" }}
 							initial={{ scale: 1.1 }}
@@ -693,10 +821,19 @@ export default function HeroDetail() {
 									/>
 								)}
 							</AnimatePresence>
-							<motion.div animate={isFavorite ? { scale: [1, 1.2, 1] } : {}} transition={{ duration: 0.3 }}>
+							<motion.div
+								animate={
+									isFavorite ? { scale: [1, 1.2, 1] } : {}
+								}
+								transition={{ duration: 0.3 }}
+							>
 								<Heart
 									size={20}
-									className={isFavorite ? "fill-red-500 stroke-red-500" : "stroke-white"}
+									className={
+										isFavorite
+											? "fill-red-500 stroke-red-500"
+											: "stroke-white"
+									}
 								/>
 							</motion.div>
 						</motion.button>
@@ -716,7 +853,9 @@ export default function HeroDetail() {
 						className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-3"
 					>
 						<Sparkles size={12} className="text-yellow-400" />
-						<span className="text-xs text-white/90 font-medium">National Hero</span>
+						<span className="text-xs text-white/90 font-medium">
+							Ազգային Հերոս
+						</span>
 					</motion.div>
 
 					<motion.h1
@@ -725,7 +864,7 @@ export default function HeroDetail() {
 						transition={{ delay: 0.4, duration: 0.6 }}
 						className="text-4xl font-bold text-white mb-2 tracking-tight"
 					>
-						{hero.name}
+						{fullName}
 					</motion.h1>
 
 					<motion.p
@@ -734,7 +873,7 @@ export default function HeroDetail() {
 						transition={{ delay: 0.5 }}
 						className="text-white/80 text-base"
 					>
-						{hero.title}
+						{heroData.region} • {heroData.war}
 					</motion.p>
 				</motion.div>
 
@@ -766,29 +905,31 @@ export default function HeroDetail() {
 				animate="animate"
 				className="relative z-10 -mt-6 rounded-t-3xl bg-[var(--tg-bg)]"
 			>
-				{/* Decorative top curve */}
 				<div className="absolute top-0 left-0 right-0 h-6 bg-[var(--tg-bg)] rounded-t-3xl" />
 
 				<div className="px-5 pt-8 pb-12 space-y-8">
 					{/* Quick Info Cards */}
-					<motion.div variants={fadeInUp} className="grid grid-cols-3 gap-3">
+					<motion.div
+						variants={fadeInUp}
+						className="grid grid-cols-3 gap-3"
+					>
 						{[
 							{
 								icon: Calendar,
-								label: "Born",
-								value: hero.birthDate?.split(",")[0] || "Unknown",
+								label: "Ծնունդ",
+								value: birthYear || "Unknown",
 								color: "#ef4444",
 							},
 							{
 								icon: Flag,
-								label: "Legacy",
-								value: hero.deathDate?.split(",")[0] || "Present",
+								label: "Զոհվել",
+								value: deathYear || "Unknown",
 								color: "#f59e0b",
 							},
 							{
 								icon: Users,
-								label: "Role",
-								value: hero.title?.split(" ")[0] || "Hero",
+								label: "Մարտ",
+								value: heroData.war?.split(" ")[0] || "Հերոս",
 								color: "#10b981",
 							},
 						].map((stat, idx) => (
@@ -810,9 +951,14 @@ export default function HeroDetail() {
 										backgroundColor: `${stat.color}20`,
 									}}
 								>
-									<stat.icon size={18} style={{ color: stat.color }} />
+									<stat.icon
+										size={18}
+										style={{ color: stat.color }}
+									/>
 								</motion.div>
-								<div className="text-xs text-[var(--tg-hint)] mb-1">{stat.label}</div>
+								<div className="text-xs text-[var(--tg-hint)] mb-1">
+									{stat.label}
+								</div>
 								<div className="text-sm font-semibold text-[var(--tg-text)] line-clamp-1">
 									{stat.value}
 								</div>
@@ -829,52 +975,91 @@ export default function HeroDetail() {
 							>
 								<Bookmark size={14} className="text-white" />
 							</motion.div>
-							<h2 className="text-lg font-semibold text-[var(--tg-text)]">Biography</h2>
-							<motion.div animate={{ x: [0, 5, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>
-								<ChevronRight size={16} className="text-[var(--tg-hint)]" />
+							<h2 className="text-lg font-semibold text-[var(--tg-text)]">
+								Կենսագրություն
+							</h2>
+							<motion.div
+								animate={{ x: [0, 5, 0] }}
+								transition={{ duration: 1.5, repeat: Infinity }}
+							>
+								<ChevronRight
+									size={16}
+									className="text-[var(--tg-hint)]"
+								/>
 							</motion.div>
 						</div>
 
-						<motion.p variants={fadeInUp} className="text-[var(--tg-text)] leading-relaxed tracking-wide">
-							{hero.description}
-						</motion.p>
+						<div className="space-y-3">
+							{bioParagraphs.map((paragraph, idx) => (
+								<motion.p
+									key={idx}
+									variants={fadeInUp}
+									className="text-[var(--tg-text)] leading-relaxed tracking-wide"
+								>
+									{paragraph}
+								</motion.p>
+							))}
+						</div>
 					</motion.div>
 
 					{/* Life Timeline */}
-					{(hero.birthDate || hero.deathDate) && (
+					{(birthYear || deathYear) && (
 						<motion.div variants={fadeInUp}>
 							<div className="flex items-center gap-2 mb-4">
 								<div className="w-8 h-8 rounded-xl bg-indigo-500/20 flex items-center justify-center">
-									<Clock size={14} className="text-indigo-400" />
+									<Clock
+										size={14}
+										className="text-indigo-400"
+									/>
 								</div>
-								<h2 className="text-lg font-semibold text-[var(--tg-text)]">Life Journey</h2>
+								<h2 className="text-lg font-semibold text-[var(--tg-text)]">
+									Կյանքի Ուղի
+								</h2>
 							</div>
 
 							<div className="relative pl-6 border-l-2 border-indigo-500/30 space-y-6">
-								{hero.birthDate && (
-									<motion.div variants={slideInLeft} className="relative">
+								{birthYear && (
+									<motion.div
+										variants={slideInLeft}
+										className="relative"
+									>
 										<motion.div
 											className="absolute -left-[27px] top-0 w-4 h-4 rounded-full bg-indigo-500 shadow-lg"
 											animate={{ scale: [1, 1.3, 1] }}
-											transition={{ duration: 2, repeat: Infinity }}
+											transition={{
+												duration: 2,
+												repeat: Infinity,
+											}}
 										/>
-										<div className="text-sm font-medium text-indigo-400 mb-1">{hero.birthDate}</div>
+										<div className="text-sm font-medium text-indigo-400 mb-1">
+											{birthYear}
+										</div>
 										<div className="text-sm text-[var(--tg-text)] opacity-80">
-											Born into a family of patriots
+											Ծնվել է հայրենիքի համար պայքարելու
+											ճակատագրով
 										</div>
 									</motion.div>
 								)}
 
-								{hero.deathDate && (
-									<motion.div variants={slideInLeft} className="relative">
+								{deathYear && (
+									<motion.div
+										variants={slideInLeft}
+										className="relative"
+									>
 										<motion.div
 											className="absolute -left-[27px] top-0 w-4 h-4 rounded-full bg-yellow-500 shadow-lg"
 											animate={{ scale: [1, 1.3, 1] }}
-											transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+											transition={{
+												duration: 2,
+												repeat: Infinity,
+												delay: 0.5,
+											}}
 										/>
-										<div className="text-sm font-medium text-yellow-400 mb-1">{hero.deathDate}</div>
+										<div className="text-sm font-medium text-yellow-400 mb-1">
+											{deathYear}
+										</div>
 										<div className="text-sm text-[var(--tg-text)] opacity-80">
-											Sacrificed for the homeland
+											Զոհվեց հայրենիքի համար - անմահ հերոս
 										</div>
 									</motion.div>
 								)}
@@ -883,17 +1068,22 @@ export default function HeroDetail() {
 					)}
 
 					{/* Achievements Section */}
-					{hero.achievements && hero.achievements.length > 0 && (
+					{achievements.length > 0 && (
 						<motion.div variants={fadeInUp}>
 							<div className="flex items-center gap-2 mb-4">
 								<div className="w-8 h-8 rounded-xl bg-yellow-500/20 flex items-center justify-center">
-									<Award size={14} className="text-yellow-500" />
+									<Award
+										size={14}
+										className="text-yellow-500"
+									/>
 								</div>
-								<h2 className="text-lg font-semibold text-[var(--tg-text)]">Achievements</h2>
+								<h2 className="text-lg font-semibold text-[var(--tg-text)]">
+									Մարտական Ուղի
+								</h2>
 							</div>
 
 							<div className="space-y-3">
-								{hero.achievements.map((achievement, index) => (
+								{achievements.map((achievement, index) => (
 									<motion.div
 										key={index}
 										custom={index}
@@ -908,11 +1098,19 @@ export default function HeroDetail() {
 										className="flex items-start gap-4 p-4 rounded-2xl bg-[var(--tg-secondary-bg)] border border-white/5"
 									>
 										<motion.div
-											animate={{ rotate: [0, 360] }}
-											transition={{ duration: 0.5, delay: index * 0.1 }}
+											animate={{
+												rotate: [0, 360],
+											}}
+											transition={{
+												duration: 0.5,
+												delay: index * 0.1,
+											}}
 											className="w-6 h-6 rounded-full bg-yellow-500/20 flex items-center justify-center shrink-0 mt-0.5"
 										>
-											<Star size={12} className="text-yellow-500" />
+											<Star
+												size={12}
+												className="text-yellow-500"
+											/>
 										</motion.div>
 										<span className="text-sm text-[var(--tg-text)] leading-relaxed">
 											{achievement}
@@ -923,17 +1121,25 @@ export default function HeroDetail() {
 						</motion.div>
 					)}
 
-					{/* ==================== COMMENTS SECTION ==================== */}
+					{/* Comments Section */}
 					<motion.div variants={fadeInUp} className="space-y-4">
 						<div className="flex items-center justify-between">
 							<div className="flex items-center gap-2">
 								<div className="w-8 h-8 rounded-xl bg-blue-500/20 flex items-center justify-center">
-									<MessageCircle size={14} className="text-blue-400" />
+									<MessageCircle
+										size={14}
+										className="text-blue-400"
+									/>
 								</div>
-								<h2 className="text-lg font-semibold text-[var(--tg-text)]">Tributes & Comments</h2>
+								<h2 className="text-lg font-semibold text-[var(--tg-text)]">
+									Հարգանքի Տուրք
+								</h2>
 							</div>
-							<motion.div whileHover={{ scale: 1.05 }} className="text-xs text-[var(--tg-hint)]">
-								{comments.length} tribute{comments.length !== 1 ? "s" : ""}
+							<motion.div
+								whileHover={{ scale: 1.05 }}
+								className="text-xs text-[var(--tg-hint)]"
+							>
+								{comments.length} հարգանքի տուրք
 							</motion.div>
 						</div>
 
@@ -948,9 +1154,13 @@ export default function HeroDetail() {
 								<input
 									type="text"
 									value={commentText}
-									onChange={(e) => setCommentText(e.target.value)}
-									onKeyPress={(e) => e.key === "Enter" && handleAddComment()}
-									placeholder="Pay tribute to this hero..."
+									onChange={(e) =>
+										setCommentText(e.target.value)
+									}
+									onKeyPress={(e) =>
+										e.key === "Enter" && handleAddComment()
+									}
+									placeholder="Միացեք հարգանքի տուրքին..."
 									className="flex-1 py-3 px-4 rounded-2xl bg-[var(--tg-secondary-bg)] text-[var(--tg-text)] placeholder:text-[var(--tg-hint)] text-sm outline-none focus:ring-2 focus:ring-[var(--tg-button)] transition"
 								/>
 								<motion.button
@@ -971,21 +1181,34 @@ export default function HeroDetail() {
 								<div className="flex justify-center py-8">
 									<motion.div
 										animate={{ rotate: 360 }}
-										transition={{ duration: 1, repeat: Infinity }}
+										transition={{
+											duration: 1,
+											repeat: Infinity,
+										}}
 										className="w-6 h-6 border-2 border-[var(--tg-button)] border-t-transparent rounded-full"
 									/>
 								</div>
 							) : comments.length === 0 ? (
-								<motion.div variants={scaleIn} className="text-center py-8 bg-[var(--tg-secondary-bg)] rounded-2xl">
+								<motion.div
+									variants={scaleIn}
+									className="text-center py-8 bg-[var(--tg-secondary-bg)] rounded-2xl"
+								>
 									<motion.div
 										animate={{ y: [0, -5, 0] }}
-										transition={{ duration: 2, repeat: Infinity }}
+										transition={{
+											duration: 2,
+											repeat: Infinity,
+										}}
 										className="text-4xl mb-3"
 									>
 										💬
 									</motion.div>
-									<p className="text-sm text-[var(--tg-hint)]">No tributes yet</p>
-									<p className="text-xs text-[var(--tg-hint)] mt-1">Be the first to honor this hero</p>
+									<p className="text-sm text-[var(--tg-hint)]">
+										Դեռևս հարգանքի տուրք չկա
+									</p>
+									<p className="text-xs text-[var(--tg-hint)] mt-1">
+										Եղեք առաջինը, ով կհարգի այս հերոսին
+									</p>
 								</motion.div>
 							) : (
 								comments.map((comment) => (
@@ -996,7 +1219,9 @@ export default function HeroDetail() {
 										onReply={handleReplyToComment}
 										onReport={handleReportComment}
 										currentUserId={user?.id || 0}
-										currentUserName={user?.first_name || "Anonymous"}
+										currentUserName={
+											user?.first_name || "Anonymous"
+										}
 									/>
 								))
 							)}
@@ -1023,8 +1248,9 @@ export default function HeroDetail() {
 							</motion.div>
 
 							<p className="text-sm text-[var(--tg-text)] italic leading-relaxed">
-								"Their sacrifice echoes through eternity. Their courage lights our path forward. We will never
-								forget."
+								"Նրանց զոհողությունը հավերժ արձագանքում է
+								դարերում: Նրանց քաջությունը լուսավորում է մեր
+								ճանապարհը: Մենք երբեք չենք մոռանա:"
 							</p>
 
 							<motion.div
@@ -1032,7 +1258,7 @@ export default function HeroDetail() {
 								className="mt-4 flex items-center justify-center gap-2 text-xs text-[var(--tg-hint)]"
 							>
 								<Shield size={12} />
-								<span>Eternal Glory to Our Heroes</span>
+								<span>Հավերժ Փառք Մեր Հերոսներին</span>
 							</motion.div>
 						</div>
 					</motion.div>
@@ -1046,13 +1272,12 @@ export default function HeroDetail() {
 							className="w-full py-4 rounded-2xl bg-gradient-to-r from-red-500 to-yellow-500 text-white font-semibold flex items-center justify-center gap-2 shadow-xl"
 						>
 							<Share2 size={18} />
-							Share This Hero
+							Տարածել Հերոսի Մասին
 						</motion.button>
 					</motion.div>
 				</div>
 			</motion.div>
 
-			{/* Custom Scrollbar Styles */}
 			<style>{`
 				.custom-scrollbar::-webkit-scrollbar {
 					width: 4px;

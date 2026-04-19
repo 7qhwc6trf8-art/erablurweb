@@ -402,7 +402,7 @@ export default function Profile() {
               className="space-y-3"
             >
               <AnimatePresence mode="popLayout">
-                {favoriteHeroes.map((hero, index) => (
+                {favoriteHeroes.map((hero: any, index) => (
                   <motion.div
                     key={hero.id}
                     initial={{ opacity: 0, x: -50 }}
