@@ -1,17 +1,6 @@
-import { useTelegram } from '../hooks/useTelegram'
-
-export function Card({ children }: { children: React.ReactNode }) {
-  const { theme } = useTelegram()
-
+export function Card({ children }: any) {
   return (
-    <div
-      style={{
-        background: theme.card,
-        padding: 16,
-        borderRadius: 12,
-        marginBottom: 12,
-      }}
-    >
+    <div className="bg-[var(--card)] rounded-2xl p-4 shadow-md active:scale-[0.99] transition">
       {children}
     </div>
   )

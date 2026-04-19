@@ -1,27 +1,15 @@
-import { useEffect } from 'react'
-import { useTelegramWebApp } from '@telegram-web-app/react'
+export function Button({ children, onClick, variant = 'primary' }: any) {
+  const base =
+    "w-full py-3 rounded-xl font-medium transition active:scale-95"
 
-export function TelegramButton({
-  text,
-  onClick,
-}: {
-  text: string
-  onClick: () => void
-}) {
-  const tg = useTelegramWebApp().WebApp
+  const styles =
+    variant === 'primary'
+      ? "bg-[var(--button)] text-[var(--button-text)]"
+      : "bg-white/10 text-[var(--text)]"
 
-  useEffect(() => {
-    tg.ready()
-    tg.expand()
-
-    tg.MainButton.setText(text)
-    tg.MainButton.show()
-    tg.MainButton.onClick(onClick)
-
-    return () => {
-      tg.MainButton.offClick(onClick)
-    }
-  }, [tg, text, onClick])
-
-  return null
+  return (
+    <button onClick={onClick} className={`${base} ${styles}`}>
+      {children}
+    </button>
+  )
 }

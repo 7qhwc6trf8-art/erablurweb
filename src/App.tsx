@@ -1,27 +1,41 @@
-import { AppShell } from './ui/AppShell'
+import { AppBar } from './ui/AppBar'
 import { Card } from './ui/Card'
 import { ListItem } from './ui/ListItem'
-import { TelegramButton } from './ui/TelegramButton'
-import { useTelegram } from './hooks/useTelegram'
+import { Button } from './ui/TelegramButton'
+import { Avatar } from './ui/Avatar'
+import { Section } from './ui/Section'
 
 function App() {
-  const { user, tg } = useTelegram()
-
   return (
-    <AppShell>
-      <Card>
-        Hello {user?.first_name} 🚀
-      </Card>
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
 
-      <ListItem title="Profile" />
-      <ListItem title="Settings" />
-      <ListItem title="Help" />
-
-      <TelegramButton
-        text="Close App"
-        onClick={() => tg.close()}
+      <AppBar
+        title="Telegram UI"
+        right={<Avatar name="John" />}
       />
-    </AppShell>
+
+      <div className="p-4 space-y-3">
+
+        <Card>
+          Welcome to Mini App 🚀
+        </Card>
+
+        <Section title="Menu" />
+
+        <ListItem title="Profile" />
+        <ListItem title="Settings" />
+        <ListItem title="Help" />
+
+        <Button onClick={() => alert('clicked')}>
+          Continue
+        </Button>
+
+        <Button variant="secondary">
+          Secondary
+        </Button>
+
+      </div>
+    </div>
   )
 }
 

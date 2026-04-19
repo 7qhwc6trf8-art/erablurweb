@@ -1,26 +1,15 @@
-import { useTelegram } from '../hooks/useTelegram'
-
-export function ListItem({
-  title,
-  onClick,
-}: {
-  title: string
-  onClick?: () => void
-}) {
-  const { theme } = useTelegram()
-
+export function ListItem({ icon, title, onClick }: any) {
   return (
     <div
       onClick={onClick}
-      style={{
-        padding: 12,
-        background: theme.card,
-        borderRadius: 10,
-        marginBottom: 8,
-        cursor: 'pointer',
-      }}
+      className="flex items-center justify-between p-4 bg-[var(--card)] rounded-xl mb-2 active:scale-[0.98] transition cursor-pointer"
     >
-      {title}
+      <div className="flex items-center gap-3">
+        {icon}
+        <span className="text-[var(--text)]">{title}</span>
+      </div>
+
+      <span className="text-[var(--hint)]">›</span>
     </div>
   )
 }

@@ -1,1 +1,10 @@
 @import "tailwindcss";
+
+:root {
+  --bg: var(--tg-theme-bg-color);
+  --text: var(--tg-theme-text-color);
+  --hint: var(--tg-theme-hint-color);
+  --card: var(--tg-theme-secondary-bg-color);
+  --button: var(--tg-theme-button-color);
+  --button-text: var(--tg-theme-button-text-color);
+}
