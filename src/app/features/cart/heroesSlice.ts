@@ -2,14 +2,18 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { heroes as initialHeroes } from '../../../data/heroes';
 
 interface Hero {
-  id: number;
-  name: string;
-  title: string;
-  image: string;
-  description: string;
-  birthDate?: string;
-  deathDate?: string;
-  achievements: string[];
+  hero: {
+    id: number;
+    name: { first: string; last: string };
+    date: { birth: string; dead: string };
+    region: string;
+    war: string;
+    img_url: string;
+    bio_link: string;
+    bio: string;
+  };
+  onClick: () => void;
+  index: number;
 }
 
 interface HeroesState {
