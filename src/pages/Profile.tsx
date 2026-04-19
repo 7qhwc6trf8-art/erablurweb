@@ -116,7 +116,7 @@ export default function Profile() {
       >
         <h3 className="text-sm font-semibold text-[var(--tg-text)] mb-4">Appearance</h3>
         <div className="flex gap-3">
-          {themeOptions.map(({ mode: themeMode, icon: Icon, label, color }) => (
+          {themeOptions.map(({ mode: themeMode, icon: Icon, label }) => (
             <motion.button
               key={themeMode}
               onClick={() => {
