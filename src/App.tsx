@@ -1,43 +1,28 @@
-import { Header } from "./Header";
-import { TelegramButton } from "./TelegramButton";
-import { useTelegramWebApp } from "@telegram-web-app/react";
-import { useEffect, useState } from "react";
+import { AppShell } from './ui/AppShell'
+import { Card } from './ui/Card'
+import { ListItem } from './ui/ListItem'
+import { TelegramButton } from './ui/TelegramButton'
+import { useTelegram } from './hooks/useTelegram'
 
 function App() {
-	const tg = useTelegramWebApp().WebApp;
-	const user = tg.initDataUnsafe?.user;
+  const { user, tg } = useTelegram()
 
-	const [useCustomTheme, setUseCustomTheme] = useState(false);
+  return (
+    <AppShell>
+      <Card>
+        Hello {user?.first_name} 🚀
+      </Card>
 
-	const theme = tg.themeParams;
+      <ListItem title="Profile" />
+      <ListItem title="Settings" />
+      <ListItem title="Help" />
 
-	useEffect(() => {
-		tg.ready();
-		tg.expand();
-	}, [tg]);
-
-	return (
-		<div
-			style={{
-				background: useCustomTheme ? "#0f172a" : theme.bg_color,
-				color: useCustomTheme ? "#fff" : theme.text_color,
-				minHeight: "100vh",
-			}}
-		>
-			{/* 🧭 HEADER */}
-			<Header />
-
-			<div style={{ padding: 20 }}>
-				<h1>Hello {user?.first_name}</h1>
-
-				<button onClick={() => setUseCustomTheme((p) => !p)}>
-					Switch Theme
-				</button>
-			</div>
-
-			<TelegramButton text="Close" onClick={() => tg.close()} />
-		</div>
-	);
+      <TelegramButton
+        text="Close App"
+        onClick={() => tg.close()}
+      />
+    </AppShell>
+  )
 }
 
-export default App;
+export default App
