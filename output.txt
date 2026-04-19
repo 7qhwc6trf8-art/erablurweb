@@ -15,10 +15,632 @@ export const products = [
     desc: 'Lightweight laptop for professionals',
   },
 ]
-Product.tsx
+Profile.tsx
+import { motion } from 'framer-motion';
+import { useSelector, useDispatch } from 'react-redux';
+import { type RootState } from '../app/store';
+import { useTelegram } from '../hooks/useTelegram';
+import { setTheme } from '../app/features/theme/themeSlice';
+import { Heart, Sun, Moon, Monitor, TrendingUp, Award, LogOut } from 'lucide-react';
+import HeroCard from '../ui/HeroCard';
+import { useNavigate } from 'react-router-dom';
 
+const fadeInUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+};
+
+export default function Profile() {
+  const { user, hapticFeedback, tg } = useTelegram();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { favorites, list } = useSelector((state: RootState) => state.heroes);
+  const { mode } = useSelector((state: RootState) => state.theme);
+  
+  const favoriteHeroes = list.filter(hero => favorites.includes(hero.id));
+  
+  const themeOptions = [
+    { mode: 'light', icon: Sun, label: 'Light', color: '#f59e0b' },
+    { mode: 'dark', icon: Moon, label: 'Dark', color: '#6366f1' },
+    { mode: 'system', icon: Monitor, label: 'System', color: '#10b981' },
+  ];
+  
+  const stats = [
+    { icon: Heart, label: 'Favorites', value: favorites.length, color: '#ef4444' },
+    { icon: Award, label: 'Visited', value: list.length, color: '#8b5cf6' },
+    { icon: TrendingUp, label: 'Streak', value: '7', color: '#10b981' },
+  ];
+  
+  const handleLogout = () => {
+    hapticFeedback?.impact('heavy');
+    tg.close();
+  };
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="pb-24"
+    >
+      {/* Header Profile Section */}
+      <motion.div
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="relative bg-gradient-to-br from-red-600/30 to-yellow-600/30 pt-8 pb-12"
+      >
+        <div className="absolute inset-0 overflow-hidden">
+          <motion.div
+            animate={{ scale: [1, 1.1, 1], rotate: [0, 5, 0] }}
+            transition={{ duration: 10, repeat: Infinity }}
+            className="absolute -top-20 -right-20 w-64 h-64 bg-red-500/20 rounded-full blur-3xl"
+          />
+          <motion.div
+            animate={{ scale: [1, 1.2, 1], rotate: [0, -5, 0] }}
+            transition={{ duration: 12, repeat: Infinity, delay: 2 }}
+            className="absolute -bottom-20 -left-20 w-80 h-80 bg-yellow-500/20 rounded-full blur-3xl"
+          />
+        </div>
+        
+        <div className="relative text-center px-4">
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-red-600 to-yellow-600 flex items-center justify-center mb-4 shadow-xl"
+          >
+            <motion.span
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="text-4xl font-bold text-white"
+            >
+              {user?.first_name?.[0] || '👤'}
+            </motion.span>
+          </motion.div>
+          
+          <motion.h2
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-xl font-bold text-[var(--tg-text)]"
+          >
+            {user?.first_name} {user?.last_name}
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.1 }}
+            className="text-sm text-[var(--tg-hint)] mt-1"
+          >
+            @{user?.username || 'heroes_museum_user'}
+          </motion.p>
+          
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', delay: 0.2 }}
+            className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm mt-3"
+          >
+            <span className="text-xs text-yellow-500">🏆</span>
+            <span className="text-xs text-[var(--tg-text)]">Heroes Museum Member</span>
+          </motion.div>
+        </div>
+      </motion.div>
+      
+      {/* Stats Cards */}
+      <div className="grid grid-cols-3 gap-3 px-4 -mt-6 mb-6">
+        {stats.map((stat, index) => (
+          <motion.div
+            key={stat.label}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+            whileHover={{ y: -5 }}
+            className="bg-[var(--tg-secondary-bg)] rounded-2xl p-4 text-center"
+          >
+            <stat.icon size={22} style={{ color: stat.color, margin: '0 auto 8px' }} />
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: 'spring', delay: index * 0.1 + 0.2 }}
+              className="text-2xl font-bold text-[var(--tg-text)]"
+            >
+              {stat.value}
+            </motion.div>
+            <div className="text-xs text-[var(--tg-hint)]">{stat.label}</div>
+          </motion.div>
+        ))}
+      </div>
+      
+      {/* Theme Settings */}
+      <motion.div
+        variants={fadeInUp}
+        initial="initial"
+        animate="animate"
+        className="mx-4 mb-6 p-5 rounded-2xl bg-[var(--tg-secondary-bg)]"
+      >
+        <h3 className="text-sm font-semibold text-[var(--tg-text)] mb-3">Appearance</h3>
+        <div className="flex gap-2">
+          {themeOptions.map(({ mode: themeMode, icon: Icon, label, color }) => (
+            <motion.button
+              key={themeMode}
+              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.02 }}
+              onClick={() => {
+                hapticFeedback?.impact('light');
+                dispatch(setTheme(themeMode as any));
+              }}
+              className={`flex-1 py-3 rounded-xl flex items-center justify-center gap-2 transition-all ${
+                mode === themeMode
+                  ? 'bg-[var(--tg-button)] text-[var(--tg-button-text)] shadow-lg'
+                  : 'bg-white/5 text-[var(--tg-hint)]'
+              }`}
+              style={
+                mode === themeMode
+                  ? { boxShadow: `0 4px 12px ${color}40` }
+                  : {}
+              }
+            >
+              <Icon size={16} />
+              <span className="text-sm font-medium">{label}</span>
+            </motion.button>
+          ))}
+        </div>
+      </motion.div>
+      
+      {/* Favorites Section */}
+      <motion.div
+        variants={fadeInUp}
+        initial="initial"
+        animate="animate"
+        className="px-4 mb-6"
+      >
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <motion.div
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <Heart size={20} className="text-red-500 fill-red-500" />
+            </motion.div>
+            <h3 className="font-semibold text-[var(--tg-text)]">Favorite Heroes</h3>
+          </div>
+          <span className="text-xs text-[var(--tg-hint)]">{favorites.length} heroes</span>
+        </div>
+        
+        {favoriteHeroes.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center py-12 bg-[var(--tg-secondary-bg)] rounded-2xl"
+          >
+            <motion.div
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="text-5xl mb-3"
+            >
+              💔
+            </motion.div>
+            <p className="text-sm text-[var(--tg-hint)]">No favorite heroes yet</p>
+            <p className="text-xs text-[var(--tg-hint)] mt-1">
+              Tap the heart icon on any hero to add them here
+            </p>
+          </motion.div>
+        ) : (
+          <div className="space-y-3">
+            {favoriteHeroes.map((hero, index) => (
+              <HeroCard
+                key={hero.id}
+                hero={hero}
+                onClick={() => navigate(`/hero/${hero.id}`)}
+                index={index}
+              />
+            ))}
+          </div>
+        )}
+      </motion.div>
+      
+      {/* Actions */}
+      <motion.div
+        variants={fadeInUp}
+        initial="initial"
+        animate="animate"
+        className="mx-4"
+      >
+        <motion.button
+          whileTap={{ scale: 0.98 }}
+          onClick={handleLogout}
+          className="w-full py-4 rounded-xl bg-red-500/20 text-red-500 font-medium flex items-center justify-center gap-2"
+        >
+          <LogOut size={18} />
+          Close App
+        </motion.button>
+        
+        <p className="text-center text-xs text-[var(--tg-hint)] mt-4 pb-4">
+          Version 2.0.0 • Made with ❤️ for Armenian Heroes
+        </p>
+      </motion.div>
+    </motion.div>
+  );
+}
+About.tsx
+import { motion } from 'framer-motion';
+import { Heart, Globe, Mail } from 'lucide-react';
+import { useTelegram } from '../hooks/useTelegram';
+
+export default function About() {
+  const { hapticFeedback } = useTelegram();
+  
+  return (
+    <div className="pb-20">
+      <div className="px-4 py-6 text-center">
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: 'spring' }}
+          className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-red-600 to-yellow-600 flex items-center justify-center mb-4"
+        >
+          <span className="text-4xl">🏛️</span>
+        </motion.div>
+        
+        <h1 className="text-2xl font-bold text-[var(--tg-text)]">Heroes Museum</h1>
+        <p className="text-sm text-[var(--tg-hint)] mt-1">Version 2.0.0</p>
+        
+        <p className="text-[var(--tg-text)] mt-6 leading-relaxed">
+          Heroes Museum is dedicated to preserving the memory of Armenian national heroes 
+          who sacrificed their lives for the homeland.
+        </p>
+      </div>
+      
+      <div className="px-4 space-y-4">
+        <div className="tg-card">
+          <h3 className="font-semibold text-[var(--tg-text)] mb-2">Features</h3>
+          <ul className="space-y-2 text-sm text-[var(--tg-hint)]">
+            <li>• Browse heroes by name</li>
+            <li>• Save favorites</li>
+            <li>• Detailed biographies</li>
+            <li>• Dark/Light/System theme</li>
+            <li>• Telegram native integration</li>
+          </ul>
+        </div>
+        
+        <div className="tg-card">
+          <h3 className="font-semibold text-[var(--tg-text)] mb-2">Technology</h3>
+          <ul className="space-y-2 text-sm text-[var(--tg-hint)]">
+            <li>• React 18 + TypeScript</li>
+            <li>• Redux Toolkit</li>
+            <li>• Framer Motion</li>
+            <li>• Telegram WebApp SDK</li>
+            <li>• Tailwind CSS</li>
+          </ul>
+        </div>
+        
+        <div className="tg-card">
+          <h3 className="font-semibold text-[var(--tg-text)] mb-2">Contact</h3>
+          <div className="space-y-2">
+            <a
+              href="#"
+              className="flex items-center gap-2 text-sm text-[var(--tg-button)]"
+              onClick={() => hapticFeedback.impact('light')}
+            >
+              <Mail size={16} />
+              support@heroesmuseum.com
+            </a>
+            <a
+              href="#"
+              className="flex items-center gap-2 text-sm text-[var(--tg-button)]"
+              onClick={() => hapticFeedback.impact('light')}
+            >
+              <Globe size={16} />
+              heroesmuseum.am
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <div className="text-center py-6">
+        <p className="text-xs text-[var(--tg-hint)]">
+          Made with <Heart size={10} className="inline text-red-500" /> for Armenian heroes
+        </p>
+      </div>
+    </div>
+  );
+}
+HeroDetail.tsx
+import { motion } from 'framer-motion';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { type RootState } from '../app/store';
+import { toggleFavorite } from '../app/features/cart/heroesSlice';
+import { Heart, ArrowLeft, Calendar, Award } from 'lucide-react';
+import { useTelegram } from '../hooks/useTelegram';
+
+export default function HeroDetail() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { hapticFeedback } = useTelegram();
+  
+  const hero = useSelector((state: RootState) =>
+    state.heroes.list.find(h => h.id === Number(id))
+  );
+  
+  const isFavorite = useSelector((state: RootState) =>
+    state.heroes.favorites.includes(Number(id))
+  );
+  
+  if (!hero) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-[var(--tg-hint)]">Hero not found</p>
+        <button onClick={() => navigate('/')} className="tg-button mt-4">
+          Go Home
+        </button>
+      </div>
+    );
+  }
+  
+  const handleFavorite = () => {
+    hapticFeedback.impact('light');
+    dispatch(toggleFavorite(hero.id));
+  };
+  
+  return (
+    <div className="pb-20">
+      {/* Hero Image */}
+      <div className="relative h-64 bg-gradient-to-br from-red-600 to-yellow-600">
+        {hero.image && (
+          <img src={hero.image} alt={hero.name} className="w-full h-full object-cover opacity-70" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+        
+        {/* Back Button */}
+        <button
+          onClick={() => navigate(-1)}
+          className="absolute top-4 left-4 p-2 rounded-full bg-black/30 backdrop-blur-md"
+        >
+          <ArrowLeft size={20} className="text-white" />
+        </button>
+        
+        {/* Favorite Button */}
+        <button
+          onClick={handleFavorite}
+          className="absolute top-4 right-4 p-2 rounded-full bg-black/30 backdrop-blur-md"
+        >
+          <Heart
+            size={20}
+            className={isFavorite ? 'fill-red-500 stroke-red-500' : 'stroke-white'}
+          />
+        </button>
+        
+        {/* Hero Name Overlay */}
+        <div className="absolute bottom-4 left-4 right-4">
+          <h1 className="text-2xl font-bold text-white">{hero.name}</h1>
+          <p className="text-white/80 text-sm mt-1">{hero.title}</p>
+        </div>
+      </div>
+      
+      {/* Hero Info */}
+      <div className="px-4 py-4 space-y-4">
+        {/* Dates */}
+        {(hero.birthDate || hero.deathDate) && (
+          <div className="flex items-center gap-2 text-sm text-[var(--tg-hint)]">
+            <Calendar size={16} />
+            <span>
+              {hero.birthDate && `${hero.birthDate}`}
+              {hero.birthDate && hero.deathDate && ' — '}
+              {hero.deathDate && `${hero.deathDate}`}
+            </span>
+          </div>
+        )}
+        
+        {/* Description */}
+        <p className="text-[var(--tg-text)] leading-relaxed">
+          {hero.description}
+        </p>
+        
+        {/* Achievements */}
+        {hero.achievements && hero.achievements.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Award size={18} className="text-[var(--tg-button)]" />
+              <h3 className="font-semibold text-[var(--tg-text)]">Achievements</h3>
+            </div>
+            
+            <ul className="space-y-2">
+              {hero.achievements.map((achievement, index) => (
+                <motion.li
+                  key={index}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="flex items-start gap-2 text-sm text-[var(--tg-hint)]"
+                >
+                  <span className="text-[var(--tg-button)]">•</span>
+                  {achievement}
+                </motion.li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 Home.tsx
+import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { useTelegram } from '../hooks/useTelegram';
+import HeroCard from '../ui/HeroCard';
+import { useSelector } from 'react-redux';
+import { type RootState } from '../app/store';
 
+export default function Home() {
+  const navigate = useNavigate();
+  const { user } = useTelegram();
+  const heroes = useSelector((state: RootState) => state.heroes.filteredList);
+  const featuredHeroes = heroes.slice(0, 5);
+  
+  return (
+    <div className="pb-20">
+      {/* Welcome Section */}
+      <div className="px-4 py-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center"
+        >
+          <h1 className="text-2xl font-bold text-[var(--tg-text)]">
+            🇦🇲 Heroes Museum
+          </h1>
+          <p className="text-sm text-[var(--tg-hint)] mt-1">
+            Honoring our national heroes
+          </p>
+          {user && (
+            <p className="text-sm text-[var(--tg-hint)] mt-2">
+              Welcome, {user.first_name}! 🕊️
+            </p>
+          )}
+        </motion.div>
+      </div>
+      
+      {/* Featured Heroes */}
+      <div className="px-4">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-base font-semibold text-[var(--tg-text)]">
+            Featured Heroes
+          </h2>
+          <button
+            onClick={() => navigate('/heroes')}
+            className="text-sm text-[var(--tg-button)]"
+          >
+            See all →
+          </button>
+        </div>
+        
+        <div className="space-y-3">
+          {featuredHeroes.map((hero, index) => (
+            <HeroCard
+              key={hero.id}
+              hero={hero}
+              onClick={() => navigate(`/hero/${hero.id}`)}
+              index={index}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+Heroes.tsx
+import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { type RootState } from '../app/store';
+import HeroCard from '../ui/HeroCard';
+import SearchBar from '../ui/SearchBar';
+import { Users, Filter } from 'lucide-react';
+import { useState } from 'react';
+
+const listVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05,
+    },
+  },
+};
+
+export default function Heroes() {
+  const navigate = useNavigate();
+  const { filteredList, searchQuery } = useSelector((state: RootState) => state.heroes);
+  const [showFilters, setShowFilters] = useState(false);
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="pb-24"
+    >
+      {/* Sticky Header */}
+      <div className="sticky top-0 z-20 bg-[var(--tg-bg)]/95 backdrop-blur-lg px-4 pt-4 pb-3 border-b border-[var(--tg-secondary-bg)]">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="flex-1">
+            <SearchBar />
+          </div>
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => setShowFilters(!showFilters)}
+            className="p-3 rounded-xl bg-[var(--tg-secondary-bg)]"
+          >
+            <Filter size={18} className="text-[var(--tg-text)]" />
+          </motion.button>
+        </div>
+        
+        {/* Results Count */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center gap-2"
+        >
+          <Users size={14} className="text-[var(--tg-hint)]" />
+          <span className="text-xs text-[var(--tg-hint)]">
+            {filteredList.length} hero{filteredList.length !== 1 ? 'es' : ''} found
+          </span>
+          {searchQuery && (
+            <span className="text-xs text-[var(--tg-button)]">
+              for "{searchQuery}"
+            </span>
+          )}
+        </motion.div>
+      </div>
+      
+      {/* Heroes List */}
+      <div className="px-4 pt-4">
+        <AnimatePresence mode="wait">
+          {filteredList.length === 0 ? (
+            <motion.div
+              key="empty"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="text-center py-20"
+            >
+              <motion.div
+                animate={{ rotate: [0, 10, -10, 0] }}
+                transition={{ duration: 1, repeat: Infinity }}
+                className="text-6xl mb-4"
+              >
+                🕯️
+              </motion.div>
+              <p className="text-[var(--tg-hint)]">No heroes found</p>
+              <p className="text-sm text-[var(--tg-hint)] mt-1">
+                Try a different search term
+              </p>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="list"
+              variants={listVariants}
+              initial="hidden"
+              animate="show"
+              className="space-y-3"
+            >
+              {filteredList.map((hero, index) => (
+                <HeroCard
+                  key={hero.id}
+                  hero={hero}
+                  onClick={() => navigate(`/hero/${hero.id}`)}
+                  index={index}
+                />
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </motion.div>
+  );
+}
 App.css
 .counter {
   font-size: 16px;
@@ -205,72 +827,451 @@ App.css
   }
 }
 
+themeSlice.ts
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+
+type ThemeMode = 'light' | 'dark' | 'system';
+
+interface ThemeState {
+  mode: ThemeMode;
+}
+
+const getInitialTheme = (): ThemeMode => {
+  const saved = localStorage.getItem('theme') as ThemeMode;
+  if (saved && ['light', 'dark', 'system'].includes(saved)) return saved;
+  return 'system';
+};
+
+const initialState: ThemeState = {
+  mode: getInitialTheme(),
+};
+
+const themeSlice = createSlice({
+  name: 'theme',
+  initialState,
+  reducers: {
+    setTheme: (state, action: PayloadAction<ThemeMode>) => {
+      state.mode = action.payload;
+      localStorage.setItem('theme', action.payload);
+      
+      if (action.payload === 'system') {
+        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+      } else {
+        document.documentElement.setAttribute('data-theme', action.payload);
+      }
+    },
+  },
+});
+
+export const { setTheme } = themeSlice.actions;
+export default themeSlice.reducer;
+heroesSlice.ts
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { heroes as initialHeroes } from '../../../data/heroes';
+
+interface Hero {
+  id: number;
+  name: string;
+  title: string;
+  image: string;
+  description: string;
+  birthDate?: string;
+  deathDate?: string;
+  achievements: string[];
+}
+
+interface HeroesState {
+  list: Hero[];
+  filteredList: Hero[];
+  selectedHero: Hero | null;
+  searchQuery: string;
+  favorites: number[];
+}
+
+const initialState: HeroesState = {
+  list: initialHeroes,
+  filteredList: initialHeroes,
+  selectedHero: null,
+  searchQuery: '',
+  favorites: JSON.parse(localStorage.getItem('favorites') || '[]'),
+};
+
+const heroesSlice = createSlice({
+  name: 'heroes',
+  initialState,
+  reducers: {
+    setSearchQuery: (state, action: PayloadAction<string>) => {
+      state.searchQuery = action.payload;
+      state.filteredList = state.list.filter(hero =>
+        hero.name.toLowerCase().includes(action.payload.toLowerCase()) ||
+        hero.title.toLowerCase().includes(action.payload.toLowerCase())
+      );
+    },
+    selectHero: (state, action: PayloadAction<number>) => {
+      state.selectedHero = state.list.find(h => h.id === action.payload) || null;
+    },
+    clearSelectedHero: (state) => {
+      state.selectedHero = null;
+    },
+    toggleFavorite: (state, action: PayloadAction<number>) => {
+      const id = action.payload;
+      if (state.favorites.includes(id)) {
+        state.favorites = state.favorites.filter(favId => favId !== id);
+      } else {
+        state.favorites.push(id);
+      }
+      localStorage.setItem('favorites', JSON.stringify(state.favorites));
+    },
+    resetFilters: (state) => {
+      state.searchQuery = '';
+      state.filteredList = state.list;
+    },
+  },
+});
+
+export const { setSearchQuery, selectHero, clearSelectedHero, toggleFavorite, resetFilters } = heroesSlice.actions;
+export default heroesSlice.reducer;
+store.ts
+// src/app/store.ts
+import { configureStore } from '@reduxjs/toolkit';
+import heroesReducer from './features/cart/heroesSlice';
+import themeReducer from './features/theme/themeSlice';
+
+export const store = configureStore({
+  reducer: {
+    heroes: heroesReducer,
+    theme: themeReducer,
+  },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
+});
+
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
 useTelegram.ts
-import { useTelegramWebApp } from '@telegram-web-app/react'
+import { useTelegramWebApp } from '@telegram-web-app/react';
 
 export function useTelegram() {
-  const tg = useTelegramWebApp().WebApp
-
+  const tg = useTelegramWebApp().WebApp;
+  
   return {
     tg,
     user: tg.initDataUnsafe?.user,
     theme: tg.themeParams,
-  }
+    isExpanded: tg.isExpanded,
+    platform: tg.platform,
+    close: () => tg.close(),
+    expand: () => tg.expand(),
+    hapticFeedback: {
+      impact: (style: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft') => {
+        tg.HapticFeedback?.impactOccurred(style);
+      },
+      notification: (type: 'error' | 'success' | 'warning') => {
+        tg.HapticFeedback?.notificationOccurred(type);
+      },
+    },
+  };
 }
 App.tsx
-import { AppBar } from './ui/AppBar'
-import { Card } from './ui/Card'
-import { ListItem } from './ui/ListItem'
-import { Button } from './ui/TelegramButton'
-import { Avatar } from './ui/Avatar'
-import { Section } from './ui/Section'
+// src/App.tsx - COMPLETE WITH 60% FRAMER MOTION + PAGE TRANSITIONS
+
+import { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Toaster } from 'react-hot-toast';
+
+import { useTelegram } from './hooks/useTelegram';
+import { type RootState } from './app/store';
+
+import Header from './ui//Header';
+import BottomNav from './ui/BottomNav';
+import Home from './pages/Home';
+import Heroes from './pages/Heroes';
+import HeroDetail from './pages/HeroDetail';
+import Profile from './pages/Profile';
+import About from './pages/About';
+import { type Variants } from 'framer-motion'
+
+export const pageVariants: Variants = {
+  initial: {
+    opacity: 0,
+    x: -80,
+    scale: 0.98,
+  },
+  animate: {
+    opacity: 1,
+    x: 0,
+    scale: 1,
+    transition: {
+      type: 'spring',
+      stiffness: 260,
+      damping: 25,
+    },
+  },
+  exit: {
+    opacity: 0,
+    x: 80,
+    scale: 0.98,
+    transition: {
+      duration: 0.2,
+      ease: 'easeInOut',
+    },
+  },
+}
+
+// Floating particles animation
+const FloatingParticles = () => (
+  <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+    {[...Array(20)].map((_, i) => (
+      <motion.div
+        key={i}
+        className="absolute w-1 h-1 rounded-full bg-indigo-500/30"
+        initial={{
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight,
+          scale: 0,
+        }}
+        animate={{
+          y: [null, -100, -200],
+          x: [null, Math.random() * 100 - 50, Math.random() * 200 - 100],
+          opacity: [0, 1, 0],
+          scale: [0, Math.random() * 2 + 1, 0],
+        }}
+        transition={{
+          duration: Math.random() * 5 + 3,
+          repeat: Infinity,
+          delay: Math.random() * 5,
+          ease: 'easeOut',
+        }}
+      />
+    ))}
+  </div>
+);
+
+function AnimatedRoutes() {
+  const location = useLocation();
+  
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route
+          path="/"
+          element={
+            <motion.div
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className="relative z-10"
+            >
+              <Home />
+            </motion.div>
+          }
+        />
+        <Route
+          path="/heroes"
+          element={
+            <motion.div
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className="relative z-10"
+            >
+              <Heroes />
+            </motion.div>
+          }
+        />
+        <Route
+          path="/hero/:id"
+          element={
+            <motion.div
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className="relative z-10"
+            >
+              <HeroDetail />
+            </motion.div>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <motion.div
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className="relative z-10"
+            >
+              <Profile />
+            </motion.div>
+          }
+        />
+        <Route
+          path="/about"
+          element={
+            <motion.div
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className="relative z-10"
+            >
+              <About />
+            </motion.div>
+          }
+        />
+      </Routes>
+    </AnimatePresence>
+  );
+}
+
+function AppContent() {
+  const { tg } = useTelegram();
+  const { mode } = useSelector((state: RootState) => state.theme);
+  
+  useEffect(() => {
+    tg.ready();
+    tg.expand();
+    
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleSystemThemeChange = (e: MediaQueryListEvent) => {
+      if (mode === 'system') {
+        document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+      }
+    };
+    
+    mediaQuery.addEventListener('change', handleSystemThemeChange);
+    return () => mediaQuery.removeEventListener('change', handleSystemThemeChange);
+  }, [tg, mode]);
+  
+  useEffect(() => {
+    if (mode === 'system') {
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    } else {
+      document.documentElement.setAttribute('data-theme', mode);
+    }
+  }, [mode]);
+  
+  return (
+    <div className="min-h-screen bg-[var(--tg-bg)] relative">
+      <FloatingParticles />
+      <Header />
+      <main className="pb-20 pt-14 relative z-10">
+        <AnimatedRoutes />
+      </main>
+      <BottomNav />
+    </div>
+  );
+}
 
 function App() {
   return (
-    <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
-
-      <AppBar
-        title="Telegram UI"
-        right={<Avatar name="John" />}
+    <BrowserRouter>
+      <AppContent />
+      <Toaster
+        position="bottom-center"
+        toastOptions={{
+          duration: 2000,
+          style: {
+            background: 'var(--tg-secondary-bg)',
+            color: 'var(--tg-text)',
+            borderRadius: '14px',
+            padding: '12px 16px',
+          },
+        }}
       />
-
-      <div className="p-4 space-y-3">
-
-        <Card>
-          Welcome to Mini App 🚀
-        </Card>
-
-        <Section title="Menu" />
-
-        <ListItem title="Profile" />
-        <ListItem title="Settings" />
-        <ListItem title="Help" />
-
-        <Button onClick={() => alert('clicked')}>
-          Continue
-        </Button>
-
-        <Button variant="secondary">
-          Secondary
-        </Button>
-
-      </div>
-    </div>
-  )
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
 main.tsx
-import ReactDOM from 'react-dom/client'
-import App from './App'
-import { TelegramWebAppProvider } from '@telegram-web-app/react'
-import './index.css'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { Provider } from 'react-redux';
+import { TelegramWebAppProvider } from '@telegram-web-app/react';
+import { store } from './app/store';
+import App from './App';
+import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <TelegramWebAppProvider>
-    <App />
-  </TelegramWebAppProvider>
-)
+  <React.StrictMode>
+    <Provider store={store}>
+      <TelegramWebAppProvider>
+        <App />
+      </TelegramWebAppProvider>
+    </Provider>
+  </React.StrictMode>
+);
+heroes.tsx
+export const heroes = [
+  {
+    id: 1,
+    name: 'Vazgen Sargsyan',
+    title: 'National Hero of Armenia',
+    image: '',
+    description: 'Military leader, statesman, and national hero who played a crucial role in the Karabakh movement and the formation of the Armenian army.',
+    birthDate: 'March 5, 1959',
+    deathDate: 'October 27, 1999',
+    achievements: [
+      'Minister of Defense of Armenia (1993-1999)',
+      'Hero of Artsakh',
+      'National Hero of Armenia',
+      'Led Armenian forces during the First Nagorno-Karabakh War',
+    ],
+  },
+  {
+    id: 2,
+    name: 'Monte Melkonian',
+    title: 'Commander of Artsakh',
+    image: '',
+    description: 'Armenian revolutionary and military commander who fought for the independence of Artsakh.',
+    birthDate: 'November 25, 1957',
+    deathDate: 'June 12, 1993',
+    achievements: [
+      'Hero of Artsakh',
+      'Commander of Martuni defense region',
+      'Led successful operations during the First Nagorno-Karabakh War',
+    ],
+  },
+  {
+    id: 3,
+    name: 'Garegin Nzhdeh',
+    title: 'Political and Military Leader',
+    image: '',
+    description: 'Armenian statesman, military commander, and political thinker who fought for Armenian independence.',
+    birthDate: 'January 1, 1886',
+    deathDate: 'December 21, 1955',
+    achievements: [
+      'Founder of the Armenian Youth Union',
+      'Key figure in the defense of Zangezur',
+      'Advocate for Armenian national identity',
+    ],
+  },
+  {
+    id: 4,
+    name: 'Andranik Ozanian',
+    title: 'General Andranik',
+    image: '',
+    description: 'Armenian military commander and national hero who fought against the Ottoman Empire.',
+    birthDate: 'February 25, 1865',
+    deathDate: 'August 31, 1927',
+    achievements: [
+      'Led Armenian fedayeen groups',
+      'Commanded the Armenian volunteer units',
+      'National Hero of Armenia',
+    ],
+  },
+];
 telegram.d.ts
 export {}
 
@@ -337,73 +1338,230 @@ export function ListItem({ icon, title, onClick }: any) {
   )
 }
 Header.tsx
-import { useTelegramWebApp } from '@telegram-web-app/react'
+import { motion } from 'framer-motion';
+import { useTelegram } from '../hooks/useTelegram';
+import { ChevronLeft } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-export function Header() {
-  const tg = useTelegramWebApp().WebApp
-  const user = tg.initDataUnsafe?.user
-  const theme = tg.themeParams
+interface HeaderProps {
+  title?: string;
+  showBack?: boolean;
+}
 
+export default function Header({ title, showBack }: HeaderProps) {
+  const { user, hapticFeedback } = useTelegram();
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  const handleBack = () => {
+    hapticFeedback.impact('light');
+    navigate(-1);
+  };
+  
+  const isHome = location.pathname === '/';
+  
   return (
-    <div
-      className="
-        sticky top-0 z-50
-        backdrop-blur-xl
-        bg-black/20
-        border-b border-white/5
-      "
-      style={{
-        background: theme.secondary_bg_color + 'cc',
-      }}
+    <motion.header
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      className="sticky top-0 z-50 bg-[var(--tg-bg)]/80 backdrop-blur-lg border-b border-[var(--tg-secondary-bg)]"
     >
-      <div className="flex items-center justify-between px-4 py-3">
-
-        {/* 🪄 LEFT - Logo */}
+      <div className="px-4 py-3 flex items-center justify-between">
+        {/* Left */}
         <div className="flex items-center gap-3">
-          <div className="relative">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-400 to-blue-600 shadow-lg" />
-            <div className="absolute inset-0 rounded-xl blur-md opacity-40 bg-blue-500" />
-          </div>
-
-          <div className="flex flex-col leading-tight">
-            <span className="text-sm font-semibold text-[var(--tg-theme-text-color)]">
-              Premium App
-            </span>
-            <span className="text-[10px] opacity-60">
-              powered by Telegram
-            </span>
-          </div>
+          {showBack && (
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={handleBack}
+              className="p-1 -ml-1"
+            >
+              <ChevronLeft size={24} className="text-[var(--tg-text)]" />
+            </motion.button>
+          )}
+          
+          {isHome && !showBack && (
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-red-600 to-yellow-600 flex items-center justify-center">
+              <span className="text-white text-sm font-bold">🏛️</span>
+            </div>
+          )}
+          
+          <h1 className="text-lg font-semibold text-[var(--tg-text)]">
+            {title || 'Heroes Museum'}
+          </h1>
         </div>
-
-        {/* 👤 RIGHT - User */}
-        <div className="flex items-center gap-3">
-
-          {/* Name */}
-          <div className="text-right leading-tight hidden sm:block">
-            <div className="text-sm font-medium text-[var(--tg-theme-text-color)]">
-              {user?.first_name}
+        
+        {/* Right - User Avatar */}
+        {user && (
+          <motion.div
+            whileTap={{ scale: 0.95 }}
+            className="flex items-center gap-2"
+          >
+            <div className="w-8 h-8 rounded-full bg-[var(--tg-secondary-bg)] flex items-center justify-center">
+              <span className="text-sm font-medium text-[var(--tg-text)]">
+                {user.first_name?.[0] || 'U'}
+              </span>
             </div>
-            <div className="text-[10px] opacity-60">
-              @{user?.username || 'user'}
-            </div>
-          </div>
-
-          {/* Avatar */}
-          <div className="relative">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 p-[2px]">
-              <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-white font-semibold text-sm">
-                {user?.first_name?.[0] || '?'}
-              </div>
-            </div>
-
-            {/* online dot */}
-            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-black rounded-full" />
-          </div>
-        </div>
-
+          </motion.div>
+        )}
       </div>
-    </div>
-  )
+    </motion.header>
+  );
+}
+HeroCard.tsx
+import { motion } from 'framer-motion';
+import { Heart, ChevronRight } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { type RootState } from '../app/store';
+import { toggleFavorite } from '../app/features/cart/heroesSlice';
+import { useTelegram } from '../hooks/useTelegram';
+
+interface HeroCardProps {
+  hero: {
+    id: number;
+    name: string;
+    title: string;
+    image: string;
+    description: string;
+  };
+  onClick: () => void;
+  index: number;
+}
+
+export default function HeroCard({ hero, onClick, index }: HeroCardProps) {
+  const dispatch = useDispatch();
+  const { hapticFeedback } = useTelegram();
+  const favorites = useSelector((state: RootState) => state.heroes.favorites);
+  const isFavorite = favorites.includes(hero.id);
+  
+  const handleFavorite = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    hapticFeedback?.impact('light');
+    dispatch(toggleFavorite(hero.id));
+  };
+  
+  return (
+    <motion.div
+      custom={index}
+      initial={{ opacity: 0, x: -50 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 50 }}
+      transition={{
+        type: 'spring',
+        stiffness: 300,
+        damping: 25,
+        delay: index * 0.05,
+      }}
+      whileHover={{
+        scale: 1.02,
+        transition: { type: 'spring', stiffness: 400, damping: 30 },
+      }}
+      whileTap={{ scale: 0.98 }}
+      onClick={onClick}
+      className="tg-card cursor-pointer active:scale-98 transition-all relative overflow-hidden group"
+    >
+      {/* Animated gradient border on hover */}
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-r from-indigo-500/0 via-indigo-500/20 to-indigo-500/0 opacity-0 group-hover:opacity-100"
+        animate={{ x: ['-100%', '100%'] }}
+        transition={{ duration: 0.6, repeat: Infinity, repeatDelay: 1 }}
+      />
+      
+      <div className="flex gap-4 p-4">
+        {/* Avatar with animation */}
+        <motion.div
+          whileHover={{ scale: 1.1, rotate: 5 }}
+          transition={{ type: 'spring', stiffness: 400 }}
+          className="w-16 h-16 rounded-full bg-gradient-to-br from-red-600 to-yellow-600 flex items-center justify-center overflow-hidden shrink-0 shadow-lg"
+        >
+          {hero.image ? (
+            <motion.img
+              src={hero.image}
+              alt={hero.name}
+              className="w-full h-full object-cover"
+              whileHover={{ scale: 1.1 }}
+              transition={{ duration: 0.3 }}
+            />
+          ) : (
+            <motion.span
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="text-white text-xl font-bold"
+            >
+              {hero.name[0]}
+            </motion.span>
+          )}
+        </motion.div>
+        
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <motion.h3
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="font-semibold text-[17px] text-[var(--tg-text)]"
+              >
+                {hero.name}
+              </motion.h3>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.1 }}
+                className="text-sm text-[var(--tg-hint)]"
+              >
+                {hero.title}
+              </motion.p>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <motion.button
+                whileTap={{ scale: 0.7 }}
+                whileHover={{ scale: 1.1 }}
+                animate={{
+                  scale: isFavorite ? [1, 1.2, 1] : 1,
+                }}
+                onClick={handleFavorite}
+                className="p-2 shrink-0 rounded-full hover:bg-white/10 transition"
+              >
+                <motion.div
+                  animate={{
+                    scale: isFavorite ? [1, 1.3, 1] : 1,
+                  }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Heart
+                    size={20}
+                    className={`transition-colors ${
+                      isFavorite
+                        ? 'fill-red-500 stroke-red-500'
+                        : 'stroke-[var(--tg-hint)] group-hover:stroke-red-400'
+                    }`}
+                  />
+                </motion.div>
+              </motion.button>
+              
+              <motion.div
+                animate={{ x: [0, 5, 0] }}
+                transition={{ duration: 1, repeat: Infinity, repeatDelay: 2 }}
+                className="text-[var(--tg-hint)]"
+              >
+                <ChevronRight size={18} />
+              </motion.div>
+            </div>
+          </div>
+          
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="text-sm text-[var(--tg-hint)] mt-2 line-clamp-2 leading-relaxed"
+          >
+            {hero.description}
+          </motion.p>
+        </div>
+      </div>
+    </motion.div>
+  );
 }
 Card.tsx
 export function Card({ children }: any) {
@@ -439,6 +1597,294 @@ export function Section({ title }: any) {
     </div>
   )
 }
+BottomNav.tsx
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { useTelegram } from "../hooks/useTelegram";
+import HeroCard from "../ui/HeroCard";
+import { useSelector } from "react-redux";
+import { type RootState } from "../app/store";
+import { Sparkles, TrendingUp, Award } from "lucide-react";
+import { type Variants } from "framer-motion";
+
+export const containerVariants: Variants = {
+  hidden: {
+    opacity: 0,
+  },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2,
+    },
+  },
+}
+
+export const itemVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    y: 30,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: 'spring',
+      stiffness: 300,
+      damping: 24,
+    },
+  },
+}
+
+export default function Home() {
+	const navigate = useNavigate();
+	const { user } = useTelegram();
+	const heroes = useSelector((state: RootState) => state.heroes.filteredList);
+	const featuredHeroes = heroes.slice(0, 5);
+
+	return (
+		<motion.div
+			variants={containerVariants}
+			initial="hidden"
+			animate="visible"
+			className="pb-24"
+		>
+			{/* Hero Welcome Section */}
+			<motion.div
+				variants={itemVariants}
+				className="relative overflow-hidden bg-gradient-to-br from-red-600/20 to-yellow-600/20 mx-4 mt-4 rounded-3xl p-6"
+			>
+				<motion.div
+					animate={{ rotate: 360 }}
+					transition={{
+						duration: 20,
+						repeat: Infinity,
+						ease: "linear",
+					}}
+					className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/20 rounded-full blur-2xl"
+				/>
+				<motion.div
+					animate={{ rotate: -360 }}
+					transition={{
+						duration: 25,
+						repeat: Infinity,
+						ease: "linear",
+					}}
+					className="absolute bottom-0 left-0 w-40 h-40 bg-red-500/20 rounded-full blur-2xl"
+				/>
+
+				<motion.h1
+					initial={{ scale: 0.9, opacity: 0 }}
+					animate={{ scale: 1, opacity: 1 }}
+					transition={{ type: "spring", stiffness: 400, damping: 20 }}
+					className="text-3xl font-bold text-[var(--tg-text)] mb-2"
+				>
+					🇦🇲 Heroes Museum
+				</motion.h1>
+
+				<motion.p
+					initial={{ x: -50, opacity: 0 }}
+					animate={{ x: 0, opacity: 1 }}
+					transition={{ delay: 0.2 }}
+					className="text-[var(--tg-hint)] mb-4"
+				>
+					Honoring our national heroes who sacrificed everything
+				</motion.p>
+
+				{user && (
+					<motion.div
+						initial={{ scale: 0 }}
+						animate={{ scale: 1 }}
+						transition={{
+							type: "spring",
+							stiffness: 500,
+							delay: 0.3,
+						}}
+						className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm"
+					>
+						<Sparkles size={14} className="text-yellow-500" />
+						<span className="text-sm text-[var(--tg-text)]">
+							Welcome back, {user.first_name}! 🕊️
+						</span>
+					</motion.div>
+				)}
+			</motion.div>
+
+			{/* Stats Section */}
+			<motion.div
+				variants={itemVariants}
+				className="grid grid-cols-3 gap-3 mx-4 mt-4"
+			>
+				{[
+					{
+						icon: Award,
+						label: "Heroes",
+						value: heroes.length,
+						color: "#ef4444",
+					},
+					{
+						icon: TrendingUp,
+						label: "Favorites",
+						value: 0,
+						color: "#10b981",
+					},
+					{
+						icon: Sparkles,
+						label: "Years",
+						value: "∞",
+						color: "#8b5cf6",
+					},
+				].map((stat) => (
+					<motion.div
+						key={stat.label}
+						whileHover={{ y: -5, scale: 1.02 }}
+						className="bg-[var(--tg-secondary-bg)] rounded-2xl p-4 text-center"
+					>
+						<stat.icon
+							size={24}
+							style={{ color: stat.color, margin: "0 auto 8px" }}
+						/>
+						<div className="text-2xl font-bold text-[var(--tg-text)]">
+							{stat.value}
+						</div>
+						<div className="text-xs text-[var(--tg-hint)]">
+							{stat.label}
+						</div>
+					</motion.div>
+				))}
+			</motion.div>
+
+			{/* Featured Heroes Section */}
+			<motion.div variants={itemVariants} className="mt-6 px-4">
+				<motion.div
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					className="flex items-center justify-between mb-4"
+				>
+					<div>
+						<h2 className="text-lg font-semibold text-[var(--tg-text)]">
+							Featured Heroes
+						</h2>
+						<p className="text-xs text-[var(--tg-hint)] mt-0.5">
+							Stories of courage and sacrifice
+						</p>
+					</div>
+					<motion.button
+						whileHover={{ scale: 1.05 }}
+						whileTap={{ scale: 0.95 }}
+						onClick={() => navigate("/heroes")}
+						className="text-sm text-[var(--tg-button)] font-medium"
+					>
+						See all →
+					</motion.button>
+				</motion.div>
+
+				<div className="space-y-3">
+					{featuredHeroes.map((hero, index) => (
+						<HeroCard
+							key={hero.id}
+							hero={hero}
+							onClick={() => navigate(`/hero/${hero.id}`)}
+							index={index}
+						/>
+					))}
+				</div>
+			</motion.div>
+
+			{/* Inspirational Quote */}
+			<motion.div
+				variants={itemVariants}
+				className="mx-4 mt-6 p-6 rounded-2xl bg-gradient-to-r from-indigo-500/10 to-purple-500/10 text-center"
+			>
+				<motion.div
+					animate={{ rotate: [0, 5, -5, 0] }}
+					transition={{ duration: 4, repeat: Infinity }}
+					className="text-4xl mb-3"
+				>
+					🕯️
+				</motion.div>
+				<p className="text-sm text-[var(--tg-text)] italic leading-relaxed">
+					"A nation that forgets its heroes is a nation that forgets
+					itself."
+				</p>
+				<p className="text-xs text-[var(--tg-hint)] mt-2">
+					- Armenian Proverb
+				</p>
+			</motion.div>
+		</motion.div>
+	);
+}
+
+SearchBar.tsx
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, X } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { type RootState } from '../app/store';
+import { setSearchQuery, resetFilters } from '../app/features/cart/heroesSlice';
+import { useState } from 'react';
+
+export default function SearchBar() {
+  const dispatch = useDispatch();
+  const searchQuery = useSelector((state: RootState) => state.heroes.searchQuery);
+  const [isFocused, setIsFocused] = useState(false);
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+      className={`relative transition-all duration-300 ${isFocused ? 'scale-105' : 'scale-100'}`}
+    >
+      <motion.div
+        animate={{
+          boxShadow: isFocused ? '0 0 0 2px var(--tg-button)' : 'none',
+        }}
+        className="relative rounded-xl overflow-hidden"
+      >
+        <Search
+          size={18}
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--tg-hint)] z-10"
+        />
+        
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => dispatch(setSearchQuery(e.target.value))}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          placeholder="Search heroes..."
+          className="w-full py-3.5 pl-11 pr-12 bg-[var(--tg-secondary-bg)] text-[var(--tg-text)] placeholder:text-[var(--tg-hint)] outline-none text-base"
+        />
+        
+        <AnimatePresence>
+          {searchQuery && (
+            <motion.button
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0, opacity: 0 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => dispatch(resetFilters())}
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-white/10 transition"
+            >
+              <X size={16} className="text-[var(--tg-hint)]" />
+            </motion.button>
+          )}
+        </AnimatePresence>
+      </motion.div>
+      
+      {/* Animated search indicator */}
+      {isFocused && (
+        <motion.div
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="absolute -bottom-6 left-0 text-xs text-[var(--tg-hint)]"
+        >
+          Type to search heroes by name or title
+        </motion.div>
+      )}
+    </motion.div>
+  );
+}
 AppBar.tsx
 export function AppBar({ title, right }: any) {
   return (
@@ -454,13 +1900,105 @@ export function AppBar({ title, right }: any) {
 index.css
 @import "tailwindcss";
 
+@theme {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Telegram Theme Variables */
 :root {
-  --bg: var(--tg-theme-bg-color);
-  --text: var(--tg-theme-text-color);
-  --hint: var(--tg-theme-hint-color);
-  --card: var(--tg-theme-secondary-bg-color);
-  --button: var(--tg-theme-button-color);
-  --button-text: var(--tg-theme-button-text-color);
+  --tg-bg: var(--tg-theme-bg-color, #ffffff);
+  --tg-text: var(--tg-theme-text-color, #000000);
+  --tg-hint: var(--tg-theme-hint-color, #999999);
+  --tg-link: var(--tg-theme-link-color, #2678b6);
+  --tg-button: var(--tg-theme-button-color, #3390ec);
+  --tg-button-text: var(--tg-theme-button-text-color, #ffffff);
+  --tg-secondary-bg: var(--tg-theme-secondary-bg-color, #f0f0f0);
+}
+
+[data-theme="dark"] {
+  --tg-bg: var(--tg-theme-bg-color, #1a1a1a);
+  --tg-text: var(--tg-theme-text-color, #ffffff);
+  --tg-hint: var(--tg-theme-hint-color, #aaaaaa);
+  --tg-secondary-bg: var(--tg-theme-secondary-bg-color, #2a2a2a);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--tg-bg);
+  color: var(--tg-text);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Telegram-style animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.2s ease-out;
+}
+
+/* Custom scrollbar (Telegram style) */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--tg-hint);
+  border-radius: 10px;
+}
+
+/* Telegram native button styles */
+.tg-button {
+  background: var(--tg-button);
+  color: var(--tg-button-text);
+  border: none;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.tg-button:active {
+  opacity: 0.7;
+}
+
+/* Telegram card style */
+.tg-card {
+  background: var(--tg-secondary-bg);
+  border-radius: 14px;
+  padding: 16px;
+  transition: transform 0.2s ease;
+}
+
+.tg-card:active {
+  transform: scale(0.98);
 }
 theme.ts
 export function getTheme(tg: any) {
