@@ -1,12 +1,13 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { useTelegram } from '../hooks/useTelegram';
+// import { useTelegram } from '../hooks/useTelegram';
 import HeroCard from '../ui/HeroCard';
 import { useSelector } from 'react-redux';
 import { type RootState } from '../app/store';
 
 export default function Home() {
   const navigate = useNavigate();
+//   const { user } = useTelegram();
   const heroes = useSelector((state: RootState) => state.heroes.filteredList);
   const featuredHeroes = heroes.slice(0, 5);
   
