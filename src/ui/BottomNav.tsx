@@ -24,7 +24,7 @@ export default function BottomNav() {
 		<motion.div
 			initial={{ y: 100 }}
 			animate={{ y: 0 }}
-			className="fixed bottom-0 left-0 right-0 bg-[var(--tg-bg)]/80 backdrop-blur-lg border-t border-[var(--tg-secondary-bg)] safe-bottom"
+			className="fixed z-50 bottom-0 left-0 right-0 bg-[var(--tg-bg)]/80 backdrop-blur-lg border-t border-[var(--tg-secondary-bg)] safe-bottom"
 		>
 			<div className="flex items-center justify-around px-4 py-2">
 				{tabs.map(({ path, icon: Icon, label }) => {
@@ -35,7 +35,6 @@ export default function BottomNav() {
 							<motion.button
 								key={path}
 								whileTap={{ scale: 0.9 }}
-								onClick={() => handleNavigate(path)}
 								className="flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-colors"
 							>
 								<Icon
