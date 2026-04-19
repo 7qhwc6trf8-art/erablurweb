@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { Home, Users, User, Info } from "lucide-react";
-import { useNavigate, useLocation, Link } from "react-router-dom";
-import { useTelegram } from "../hooks/useTelegram";
+import { useLocation, Link } from "react-router-dom";
 
 const tabs = [
 	{ path: "/", icon: Home, label: "Home" },
@@ -11,14 +10,7 @@ const tabs = [
 ];
 
 export default function BottomNav() {
-	const navigate = useNavigate();
 	const location = useLocation();
-	const { hapticFeedback } = useTelegram();
-
-	const handleNavigate = (path: string) => {
-		hapticFeedback.impact("light");
-		navigate(path);
-	};
 
 	return (
 		<motion.div
