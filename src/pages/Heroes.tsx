@@ -35,13 +35,6 @@ export default function Heroes() {
           <div className="flex-1">
             <SearchBar />
           </div>
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => setShowFilters(!showFilters)}
-            className="p-3 rounded-xl bg-[var(--tg-secondary-bg)]"
-          >
-            <Filter size={18} className="text-[var(--tg-text)]" />
-          </motion.button>
         </div>
         
         {/* Results Count */}
