@@ -2,6 +2,11 @@ import { useTelegramWebApp } from '@telegram-web-app/react'
 
 function App() {
   useTelegramWebApp()
+  if (!window.Telegram) {
+    return (
+      <div>Not found</div>
+    )
+  }
   const user = window?.Telegram?.WebApp?.initDataUnsafe?.user;
   const tg = useTelegramWebApp().WebApp;
 
