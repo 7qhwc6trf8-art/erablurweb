@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 
 export default function Heroes() {
   const navigate = useNavigate();
-  const { filteredList, searchQuery } = useSelector((state: RootState) => state.heroes);
+  const { filteredList } = useSelector((state: RootState) => state.heroes);
   
   return (
     <div className="pb-20">
