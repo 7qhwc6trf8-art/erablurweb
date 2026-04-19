@@ -1,8 +1,15 @@
+import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App.jsx'
+import App from './App'
 import { TelegramWebAppProvider } from '@telegram-web-app/react'
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+const root = document.getElementById('root')
+
+if (!root) {
+  throw new Error('Root element not found')
+}
+
+ReactDOM.createRoot(root).render(
   <TelegramWebAppProvider>
     <App />
   </TelegramWebAppProvider>
