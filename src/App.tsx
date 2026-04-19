@@ -1,13 +1,18 @@
 import { useTelegramWebApp } from '@telegram-web-app/react'
 
 function App() {
-  const tg = useTelegramWebApp()
-
-  const user = tg.initDataUnsafe?.user
+  useTelegramWebApp()
+  if (!window.Telegram) {
+    return (
+      <div>Not found</div>
+    )
+  }
+  const user = window?.Telegram?.WebApp?.initDataUnsafe?.user;
+  const tg = useTelegramWebApp().WebApp;
 
   return (
     <div style={{ padding: 20 }}>
-      <h1>Telegram Mini App 🚀</h1>
+      <h1>My First Telegram App 🚀</h1>
 
       {user ? (
         <>
@@ -18,8 +23,8 @@ function App() {
         <p>Open inside Telegram</p>
       )}
 
-      <button onClick={() => tg.close()}>
-        Close
+      <button onClick={() => tg?.close()}>
+        Close App
       </button>
     </div>
   )

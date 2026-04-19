@@ -1,25 +1,21 @@
 export {}
 
 declare global {
-  interface TelegramWebAppUser {
+  interface TelegramUser {
     id: number
     first_name: string
     last_name?: string
     username?: string
-    language_code?: string
   }
 
   interface TelegramWebAppInitDataUnsafe {
-    user?: TelegramWebAppUser
+    user?: TelegramUser
   }
 
   interface TelegramWebApp {
     initDataUnsafe: TelegramWebAppInitDataUnsafe
-  }
-
-  interface Window {
-    Telegram?: {
-      WebApp: TelegramWebApp
-    }
+    close: () => void
+    ready: () => void
+    expand: () => void
   }
 }
