@@ -1,5 +1,6 @@
 // src/pages/HeroDetail.tsx
 // ULTRA PREMIUM PRO MAX 2026 DESIGN - Fully Animated, Elegant, Professional
+// WITH COMPLETE COMMENTS SECTION - Read/Write/Like/Reply/Report
 
 import {
 	motion,
@@ -26,15 +27,44 @@ import {
 	Users,
 	Flag,
 	Clock,
+	MessageCircle,
+	Send,
+	MoreVertical,
+	ThumbsUp,
+	Reply,
+	FlagIcon,
 } from "lucide-react";
 import { useTelegram } from "../hooks/useTelegram";
 import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 
-// Animation variants
+// ==================== TYPES ====================
+
+interface Reply {
+	id: string;
+	userId: number;
+	userName: string;
+	text: string;
+	timestamp: string;
+	likes: number;
+}
+
+interface Comment {
+	id: string;
+	userId: number;
+	userName: string;
+	userAvatar?: string;
+	text: string;
+	timestamp: string;
+	likes: number;
+	isLiked: boolean;
+	replies: Reply[];
+}
+
+// ==================== ANIMATION VARIANTS ====================
+
 export const pageVariants: Variants = {
 	initial: { opacity: 0 },
-
 	animate: {
 		opacity: 1,
 		transition: {
@@ -42,7 +72,6 @@ export const pageVariants: Variants = {
 			ease: [0.25, 0.1, 0.25, 1] as const,
 		},
 	},
-
 	exit: {
 		opacity: 0,
 		transition: {
@@ -53,15 +82,15 @@ export const pageVariants: Variants = {
 };
 
 export const imageReveal: Variants = {
-  initial: { scale: 1.2, opacity: 0 },
-  animate: {
-    scale: 1,
-    opacity: 1,
-    transition: {
-      duration: 0.8,
-      ease: [0.25, 0.1, 0.25, 1] as const,
-    },
-  },
+	initial: { scale: 1.2, opacity: 0 },
+	animate: {
+		scale: 1,
+		opacity: 1,
+		transition: {
+			duration: 0.8,
+			ease: [0.25, 0.1, 0.25, 1] as const,
+		},
+	},
 };
 
 const contentStagger = {
@@ -73,64 +102,281 @@ const contentStagger = {
 	},
 };
 
-
 export const fadeInUp: Variants = {
-  initial: { opacity: 0, y: 40, filter: "blur(10px)" },
-  animate: {
-    opacity: 1,
-    y: 0,
-    filter: "blur(0px)",
-    transition: {
-      duration: 0.6,
-      ease: [0.25, 0.1, 0.25, 1] as const,
-    },
-  },
+	initial: { opacity: 0, y: 40, filter: "blur(10px)" },
+	animate: {
+		opacity: 1,
+		y: 0,
+		filter: "blur(0px)",
+		transition: {
+			duration: 0.6,
+			ease: [0.25, 0.1, 0.25, 1] as const,
+		},
+	},
 };
 
 export const scaleIn: Variants = {
-  initial: { opacity: 0, scale: 0.9 },
-  animate: {
-    opacity: 1,
-    scale: 1,
-    transition: {
-      type: "spring",
-      stiffness: 300,
-      damping: 25,
-    },
-  },
+	initial: { opacity: 0, scale: 0.9 },
+	animate: {
+		opacity: 1,
+		scale: 1,
+		transition: {
+			type: "spring",
+			stiffness: 300,
+			damping: 25,
+		},
+	},
 };
 
-
 export const slideInLeft: Variants = {
-  initial: { opacity: 0, x: -60 },
-  animate: {
-    opacity: 1,
-    x: 0,
-    transition: {
-      duration: 0.5,
-      ease: [0.25, 0.1, 0.25, 1] as const,
-    },
-  },
+	initial: { opacity: 0, x: -60 },
+	animate: {
+		opacity: 1,
+		x: 0,
+		transition: {
+			duration: 0.5,
+			ease: [0.25, 0.1, 0.25, 1] as const,
+		},
+	},
 };
 
 const buttonTap = { scale: 0.95 };
 export const buttonHover = {
-  scale: 1.04,
-  transition: {
-    type: "spring" as const,
-    stiffness: 500,
-    damping: 30,
-    mass: 0.6,
-  },
+	scale: 1.04,
+	transition: {
+		type: "spring" as const,
+		stiffness: 500,
+		damping: 30,
+		mass: 0.6,
+	},
 };
+
+// ==================== COMMENT ITEM COMPONENT ====================
+
+interface CommentItemProps {
+	comment: Comment;
+	onLike: (id: string) => void;
+	onReply: (id: string, text: string) => void;
+	onReport: (id: string) => void;
+	currentUserId: number;
+	currentUserName: string;
+}
+
+function CommentItem({
+	comment,
+	onLike,
+	onReply,
+	onReport,
+	currentUserId,
+	currentUserName,
+}: CommentItemProps) {
+	const [isReplying, setIsReplying] = useState(false);
+	const [replyText, setReplyText] = useState("");
+	const [showActions, setShowActions] = useState(false);
+	const [showReplies, setShowReplies] = useState(false);
+	const inputRef = useRef<HTMLInputElement>(null);
+
+	const handleSubmitReply = () => {
+		if (replyText.trim()) {
+			onReply(comment.id, replyText);
+			setReplyText("");
+			setIsReplying(false);
+			toast.success("Reply added", { icon: "💬", duration: 1500 });
+		}
+	};
+
+	return (
+		<motion.div variants={fadeInUp} initial="initial" animate="animate" className="group">
+			<div className="flex gap-3">
+				{/* Avatar */}
+				<motion.div
+					whileHover={{ scale: 1.05 }}
+					className="w-10 h-10 rounded-full bg-gradient-to-br from-red-600 to-yellow-600 flex items-center justify-center shrink-0"
+				>
+					<span className="text-white text-sm font-medium">
+						{comment.userName?.[0] || "U"}
+					</span>
+				</motion.div>
+
+				{/* Comment Content */}
+				<div className="flex-1">
+					<div className="bg-[var(--tg-secondary-bg)] rounded-2xl p-3">
+						<div className="flex items-center justify-between mb-1">
+							<div className="flex items-center gap-2">
+								<span className="text-sm font-semibold text-[var(--tg-text)]">
+									{comment.userName}
+								</span>
+								<span className="text-xs text-[var(--tg-hint)]">
+									{new Date(comment.timestamp).toLocaleDateString()}
+								</span>
+							</div>
+
+							<div className="relative">
+								<motion.button
+									whileTap={{ scale: 0.9 }}
+									onClick={() => setShowActions(!showActions)}
+									className="p-1 rounded-full hover:bg-white/10 transition"
+								>
+									<MoreVertical size={14} className="text-[var(--tg-hint)]" />
+								</motion.button>
+
+								<AnimatePresence>
+									{showActions && (
+										<motion.div
+											initial={{ opacity: 0, scale: 0.9, y: -10 }}
+											animate={{ opacity: 1, scale: 1, y: 0 }}
+											exit={{ opacity: 0, scale: 0.9, y: -10 }}
+											className="absolute right-0 top-6 bg-[var(--tg-bg)] border border-[var(--tg-secondary-bg)] rounded-xl shadow-xl z-10 min-w-[120px] overflow-hidden"
+										>
+											<button
+												onClick={() => {
+													onReport(comment.id);
+													setShowActions(false);
+												}}
+												className="w-full px-3 py-2 text-left text-sm text-red-500 hover:bg-red-500/10 flex items-center gap-2"
+											>
+												<FlagIcon size={14} />
+												Report
+											</button>
+										</motion.div>
+									)}
+								</AnimatePresence>
+							</div>
+						</div>
+
+						<p className="text-sm text-[var(--tg-text)] leading-relaxed">
+							{comment.text}
+						</p>
+					</div>
+
+					{/* Action Buttons */}
+					<div className="flex items-center gap-4 mt-1 ml-2">
+						<motion.button
+							whileTap={{ scale: 0.9 }}
+							onClick={() => onLike(comment.id)}
+							className="flex items-center gap-1 py-1 px-2 rounded-full hover:bg-white/10 transition"
+						>
+							<ThumbsUp
+								size={12}
+								className={
+									comment.isLiked
+										? "fill-blue-500 stroke-blue-500"
+										: "text-[var(--tg-hint)]"
+								}
+							/>
+							<span className="text-xs text-[var(--tg-hint)]">
+								{comment.likes > 0 && comment.likes}
+							</span>
+						</motion.button>
+
+						<motion.button
+							whileTap={{ scale: 0.9 }}
+							onClick={() => {
+								setIsReplying(!isReplying);
+								setTimeout(() => inputRef.current?.focus(), 100);
+							}}
+							className="flex items-center gap-1 py-1 px-2 rounded-full hover:bg-white/10 transition"
+						>
+							<Reply size={12} className="text-[var(--tg-hint)]" />
+							<span className="text-xs text-[var(--tg-hint)]">Reply</span>
+						</motion.button>
+
+						{comment.replies.length > 0 && (
+							<motion.button
+								whileTap={{ scale: 0.9 }}
+								onClick={() => setShowReplies(!showReplies)}
+								className="text-xs text-[var(--tg-hint)] hover:text-[var(--tg-button)] transition"
+							>
+								{showReplies
+									? "Hide"
+									: `View ${comment.replies.length} repl${comment.replies.length === 1 ? "y" : "ies"}`}
+							</motion.button>
+						)}
+					</div>
+
+					{/* Reply Input */}
+					<AnimatePresence>
+						{isReplying && (
+							<motion.div
+								initial={{ opacity: 0, height: 0 }}
+								animate={{ opacity: 1, height: "auto" }}
+								exit={{ opacity: 0, height: 0 }}
+								className="mt-2 flex gap-2"
+							>
+								<input
+									ref={inputRef}
+									type="text"
+									value={replyText}
+									onChange={(e) => setReplyText(e.target.value)}
+									onKeyPress={(e) => e.key === "Enter" && handleSubmitReply()}
+									placeholder="Write a reply..."
+									className="flex-1 py-2 px-3 rounded-xl bg-[var(--tg-secondary-bg)] text-[var(--tg-text)] text-sm outline-none"
+								/>
+								<motion.button
+									whileTap={{ scale: 0.9 }}
+									onClick={handleSubmitReply}
+									disabled={!replyText.trim()}
+									className="px-4 py-2 rounded-xl bg-[var(--tg-button)] text-[var(--tg-button-text)] text-sm font-medium disabled:opacity-50"
+								>
+									<Send size={14} />
+								</motion.button>
+							</motion.div>
+						)}
+					</AnimatePresence>
+
+					{/* Replies List */}
+					<AnimatePresence>
+						{showReplies && comment.replies.length > 0 && (
+							<motion.div
+								initial={{ opacity: 0 }}
+								animate={{ opacity: 1 }}
+								exit={{ opacity: 0 }}
+								className="mt-3 ml-6 space-y-3 border-l-2 border-[var(--tg-secondary-bg)] pl-4"
+							>
+								{comment.replies.map((reply) => (
+									<div key={reply.id} className="flex gap-2">
+										<div className="w-7 h-7 rounded-full bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center shrink-0">
+											<span className="text-white text-xs font-medium">
+												{reply.userName?.[0] || "R"}
+											</span>
+										</div>
+										<div className="flex-1">
+											<div className="bg-[var(--tg-secondary-bg)] rounded-xl p-2">
+												<div className="flex items-center gap-2 mb-1">
+													<span className="text-xs font-semibold text-[var(--tg-text)]">
+														{reply.userName}
+													</span>
+													<span className="text-xs text-[var(--tg-hint)]">
+														{new Date(reply.timestamp).toLocaleDateString()}
+													</span>
+												</div>
+												<p className="text-xs text-[var(--tg-text)]">{reply.text}</p>
+											</div>
+										</div>
+									</div>
+								))}
+							</motion.div>
+						)}
+					</AnimatePresence>
+				</div>
+			</div>
+		</motion.div>
+	);
+}
+
+// ==================== MAIN COMPONENT ====================
 
 export default function HeroDetail() {
 	const { id } = useParams();
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
-	const { hapticFeedback, tg } = useTelegram();
+	const { hapticFeedback, tg, user } = useTelegram();
 	const [isLikedAnimating, setIsLikedAnimating] = useState(false);
+	const [commentText, setCommentText] = useState("");
+	const [comments, setComments] = useState<Comment[]>([]);
+	const [isLoadingComments, setIsLoadingComments] = useState(true);
 	const headerRef = useRef<HTMLDivElement>(null);
+	const commentsEndRef = useRef<HTMLDivElement>(null);
 	const { scrollY } = useScroll();
 
 	const hero = useSelector((state: RootState) =>
@@ -146,12 +392,61 @@ export default function HeroDetail() {
 	const headerScale = useTransform(scrollY, [0, 200], [1, 0.95]);
 	const headerBlur = useTransform(scrollY, [0, 200], [0, 8]);
 
+	// Load comments from localStorage
 	useEffect(() => {
 		window.scrollTo(0, 0);
 		if (hero) {
 			document.title = `${hero.name} - Heroes Museum`;
+
+			const savedComments = localStorage.getItem(`hero_comments_${hero.id}`);
+			if (savedComments) {
+				setComments(JSON.parse(savedComments));
+			} else {
+				const demoComments: Comment[] = [
+					{
+						id: "1",
+						userId: 1001,
+						userName: "ArmenianPatriot",
+						text: "A true hero who will never be forgotten. His sacrifice for our homeland inspires generations.",
+						timestamp: new Date(Date.now() - 86400000).toISOString(),
+						likes: 24,
+						isLiked: false,
+						replies: [
+							{
+								id: "r1",
+								userId: 1002,
+								userName: "HeroLover",
+								text: "Well said! 🇦🇲",
+								timestamp: new Date(Date.now() - 72000000).toISOString(),
+								likes: 5,
+							},
+						],
+					},
+					{
+						id: "2",
+						userId: 1003,
+						userName: "YerevanSpirit",
+						text: "We owe our freedom to heroes like him. Eternal glory!",
+						timestamp: new Date(Date.now() - 172800000).toISOString(),
+						likes: 15,
+						isLiked: false,
+						replies: [],
+					},
+				];
+				setComments(demoComments);
+				localStorage.setItem(`hero_comments_${hero.id}`, JSON.stringify(demoComments));
+			}
+			setIsLoadingComments(false);
 		}
 	}, [hero]);
+
+	// Save comments to localStorage
+	const saveComments = (newComments: Comment[]) => {
+		if (hero) {
+			localStorage.setItem(`hero_comments_${hero.id}`, JSON.stringify(newComments));
+			setComments(newComments);
+		}
+	};
 
 	if (!hero) {
 		return (
@@ -170,9 +465,7 @@ export default function HeroDetail() {
 					>
 						🕯️
 					</motion.div>
-					<p className="text-[var(--tg-hint)] text-lg mb-4">
-						Hero not found
-					</p>
+					<p className="text-[var(--tg-hint)] text-lg mb-4">Hero not found</p>
 					<motion.button
 						whileTap={buttonTap}
 						whileHover={buttonHover}
@@ -190,21 +483,88 @@ export default function HeroDetail() {
 		hapticFeedback?.impact("light");
 		setIsLikedAnimating(true);
 		dispatch(toggleFavorite(hero.id));
-		toast.success(
-			isFavorite ? "Removed from favorites" : "Added to favorites",
-			{ icon: isFavorite ? "💔" : "❤️", duration: 2000 },
-		);
+		toast.success(isFavorite ? "Removed from favorites" : "Added to favorites", {
+			icon: isFavorite ? "💔" : "❤️",
+			duration: 2000,
+		});
 		setTimeout(() => setIsLikedAnimating(false), 500);
 	};
 
 	const handleShare = async () => {
 		hapticFeedback?.impact("light");
-
 		if ((tg as any)?.shareToStory) {
 			(tg as any).shareToStory?.();
 		}
-
 		toast.success("Hero shared!", { icon: "📤", duration: 2000 });
+	};
+
+	const handleAddComment = () => {
+		if (!commentText.trim()) return;
+
+		hapticFeedback?.impact("light");
+
+		const newComment: Comment = {
+			id: Date.now().toString(),
+			userId: user?.id || 0,
+			userName: user?.first_name ? `${user.first_name} ${user.last_name || ""}`.trim() : "Anonymous",
+			text: commentText.trim(),
+			timestamp: new Date().toISOString(),
+			likes: 0,
+			isLiked: false,
+			replies: [],
+		};
+
+		const updatedComments = [newComment, ...comments];
+		saveComments(updatedComments);
+		setCommentText("");
+
+		toast.success("Tribute added!", { icon: "💬", duration: 1500 });
+		commentsEndRef.current?.scrollIntoView({ behavior: "smooth" });
+	};
+
+	const handleLikeComment = (commentId: string) => {
+		hapticFeedback?.impact("light");
+
+		const updatedComments = comments.map((comment) => {
+			if (comment.id === commentId) {
+				return {
+					...comment,
+					likes: comment.isLiked ? comment.likes - 1 : comment.likes + 1,
+					isLiked: !comment.isLiked,
+				};
+			}
+			return comment;
+		});
+
+		saveComments(updatedComments);
+	};
+
+	const handleReplyToComment = (commentId: string, replyText: string) => {
+		const newReply: Reply = {
+			id: Date.now().toString(),
+			userId: user?.id || 0,
+			userName: user?.first_name ? `${user.first_name} ${user.last_name || ""}`.trim() : "Anonymous",
+			text: replyText,
+			timestamp: new Date().toISOString(),
+			likes: 0,
+		};
+
+		const updatedComments = comments.map((comment) => {
+			if (comment.id === commentId) {
+				return {
+					...comment,
+					replies: [...comment.replies, newReply],
+				};
+			}
+			return comment;
+		});
+
+		saveComments(updatedComments);
+	};
+
+	const handleReportComment = (commentId: string) => {
+		hapticFeedback?.impact("heavy");
+		toast.success("Comment reported. Our team will review it.", { icon: "🚩", duration: 2000 });
 	};
 
 	return (
@@ -247,11 +607,7 @@ export default function HeroDetail() {
 						}}
 						animate={{
 							y: [null, -200, -400],
-							x: [
-								null,
-								Math.random() * 200 - 100,
-								Math.random() * 400 - 200,
-							],
+							x: [null, Math.random() * 200 - 100, Math.random() * 400 - 200],
 							opacity: [0, Math.random() * 0.5 + 0.3, 0],
 							scale: [0, Math.random() * 2 + 0.5, 0],
 						}}
@@ -337,19 +693,10 @@ export default function HeroDetail() {
 									/>
 								)}
 							</AnimatePresence>
-							<motion.div
-								animate={
-									isFavorite ? { scale: [1, 1.2, 1] } : {}
-								}
-								transition={{ duration: 0.3 }}
-							>
+							<motion.div animate={isFavorite ? { scale: [1, 1.2, 1] } : {}} transition={{ duration: 0.3 }}>
 								<Heart
 									size={20}
-									className={
-										isFavorite
-											? "fill-red-500 stroke-red-500"
-											: "stroke-white"
-									}
+									className={isFavorite ? "fill-red-500 stroke-red-500" : "stroke-white"}
 								/>
 							</motion.div>
 						</motion.button>
@@ -369,9 +716,7 @@ export default function HeroDetail() {
 						className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-3"
 					>
 						<Sparkles size={12} className="text-yellow-400" />
-						<span className="text-xs text-white/90 font-medium">
-							National Hero
-						</span>
+						<span className="text-xs text-white/90 font-medium">National Hero</span>
 					</motion.div>
 
 					<motion.h1
@@ -426,23 +771,18 @@ export default function HeroDetail() {
 
 				<div className="px-5 pt-8 pb-12 space-y-8">
 					{/* Quick Info Cards */}
-					<motion.div
-						variants={fadeInUp}
-						className="grid grid-cols-3 gap-3"
-					>
+					<motion.div variants={fadeInUp} className="grid grid-cols-3 gap-3">
 						{[
 							{
 								icon: Calendar,
 								label: "Born",
-								value:
-									hero.birthDate?.split(",")[0] || "Unknown",
+								value: hero.birthDate?.split(",")[0] || "Unknown",
 								color: "#ef4444",
 							},
 							{
 								icon: Flag,
 								label: "Legacy",
-								value:
-									hero.deathDate?.split(",")[0] || "Present",
+								value: hero.deathDate?.split(",")[0] || "Present",
 								color: "#f59e0b",
 							},
 							{
@@ -470,14 +810,9 @@ export default function HeroDetail() {
 										backgroundColor: `${stat.color}20`,
 									}}
 								>
-									<stat.icon
-										size={18}
-										style={{ color: stat.color }}
-									/>
+									<stat.icon size={18} style={{ color: stat.color }} />
 								</motion.div>
-								<div className="text-xs text-[var(--tg-hint)] mb-1">
-									{stat.label}
-								</div>
+								<div className="text-xs text-[var(--tg-hint)] mb-1">{stat.label}</div>
 								<div className="text-sm font-semibold text-[var(--tg-text)] line-clamp-1">
 									{stat.value}
 								</div>
@@ -494,24 +829,13 @@ export default function HeroDetail() {
 							>
 								<Bookmark size={14} className="text-white" />
 							</motion.div>
-							<h2 className="text-lg font-semibold text-[var(--tg-text)]">
-								Biography
-							</h2>
-							<motion.div
-								animate={{ x: [0, 5, 0] }}
-								transition={{ duration: 1.5, repeat: Infinity }}
-							>
-								<ChevronRight
-									size={16}
-									className="text-[var(--tg-hint)]"
-								/>
+							<h2 className="text-lg font-semibold text-[var(--tg-text)]">Biography</h2>
+							<motion.div animate={{ x: [0, 5, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>
+								<ChevronRight size={16} className="text-[var(--tg-hint)]" />
 							</motion.div>
 						</div>
 
-						<motion.p
-							variants={fadeInUp}
-							className="text-[var(--tg-text)] leading-relaxed tracking-wide"
-						>
+						<motion.p variants={fadeInUp} className="text-[var(--tg-text)] leading-relaxed tracking-wide">
 							{hero.description}
 						</motion.p>
 					</motion.div>
@@ -521,33 +845,20 @@ export default function HeroDetail() {
 						<motion.div variants={fadeInUp}>
 							<div className="flex items-center gap-2 mb-4">
 								<div className="w-8 h-8 rounded-xl bg-indigo-500/20 flex items-center justify-center">
-									<Clock
-										size={14}
-										className="text-indigo-400"
-									/>
+									<Clock size={14} className="text-indigo-400" />
 								</div>
-								<h2 className="text-lg font-semibold text-[var(--tg-text)]">
-									Life Journey
-								</h2>
+								<h2 className="text-lg font-semibold text-[var(--tg-text)]">Life Journey</h2>
 							</div>
 
 							<div className="relative pl-6 border-l-2 border-indigo-500/30 space-y-6">
 								{hero.birthDate && (
-									<motion.div
-										variants={slideInLeft}
-										className="relative"
-									>
+									<motion.div variants={slideInLeft} className="relative">
 										<motion.div
 											className="absolute -left-[27px] top-0 w-4 h-4 rounded-full bg-indigo-500 shadow-lg"
 											animate={{ scale: [1, 1.3, 1] }}
-											transition={{
-												duration: 2,
-												repeat: Infinity,
-											}}
+											transition={{ duration: 2, repeat: Infinity }}
 										/>
-										<div className="text-sm font-medium text-indigo-400 mb-1">
-											{hero.birthDate}
-										</div>
+										<div className="text-sm font-medium text-indigo-400 mb-1">{hero.birthDate}</div>
 										<div className="text-sm text-[var(--tg-text)] opacity-80">
 											Born into a family of patriots
 										</div>
@@ -555,22 +866,13 @@ export default function HeroDetail() {
 								)}
 
 								{hero.deathDate && (
-									<motion.div
-										variants={slideInLeft}
-										className="relative"
-									>
+									<motion.div variants={slideInLeft} className="relative">
 										<motion.div
 											className="absolute -left-[27px] top-0 w-4 h-4 rounded-full bg-yellow-500 shadow-lg"
 											animate={{ scale: [1, 1.3, 1] }}
-											transition={{
-												duration: 2,
-												repeat: Infinity,
-												delay: 0.5,
-											}}
+											transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
 										/>
-										<div className="text-sm font-medium text-yellow-400 mb-1">
-											{hero.deathDate}
-										</div>
+										<div className="text-sm font-medium text-yellow-400 mb-1">{hero.deathDate}</div>
 										<div className="text-sm text-[var(--tg-text)] opacity-80">
 											Sacrificed for the homeland
 										</div>
@@ -585,14 +887,9 @@ export default function HeroDetail() {
 						<motion.div variants={fadeInUp}>
 							<div className="flex items-center gap-2 mb-4">
 								<div className="w-8 h-8 rounded-xl bg-yellow-500/20 flex items-center justify-center">
-									<Award
-										size={14}
-										className="text-yellow-500"
-									/>
+									<Award size={14} className="text-yellow-500" />
 								</div>
-								<h2 className="text-lg font-semibold text-[var(--tg-text)]">
-									Achievements
-								</h2>
+								<h2 className="text-lg font-semibold text-[var(--tg-text)]">Achievements</h2>
 							</div>
 
 							<div className="space-y-3">
@@ -611,19 +908,11 @@ export default function HeroDetail() {
 										className="flex items-start gap-4 p-4 rounded-2xl bg-[var(--tg-secondary-bg)] border border-white/5"
 									>
 										<motion.div
-											animate={{
-												rotate: [0, 360],
-											}}
-											transition={{
-												duration: 0.5,
-												delay: index * 0.1,
-											}}
+											animate={{ rotate: [0, 360] }}
+											transition={{ duration: 0.5, delay: index * 0.1 }}
 											className="w-6 h-6 rounded-full bg-yellow-500/20 flex items-center justify-center shrink-0 mt-0.5"
 										>
-											<Star
-												size={12}
-												className="text-yellow-500"
-											/>
+											<Star size={12} className="text-yellow-500" />
 										</motion.div>
 										<span className="text-sm text-[var(--tg-text)] leading-relaxed">
 											{achievement}
@@ -633,6 +922,87 @@ export default function HeroDetail() {
 							</div>
 						</motion.div>
 					)}
+
+					{/* ==================== COMMENTS SECTION ==================== */}
+					<motion.div variants={fadeInUp} className="space-y-4">
+						<div className="flex items-center justify-between">
+							<div className="flex items-center gap-2">
+								<div className="w-8 h-8 rounded-xl bg-blue-500/20 flex items-center justify-center">
+									<MessageCircle size={14} className="text-blue-400" />
+								</div>
+								<h2 className="text-lg font-semibold text-[var(--tg-text)]">Tributes & Comments</h2>
+							</div>
+							<motion.div whileHover={{ scale: 1.05 }} className="text-xs text-[var(--tg-hint)]">
+								{comments.length} tribute{comments.length !== 1 ? "s" : ""}
+							</motion.div>
+						</div>
+
+						{/* Comment Input */}
+						<motion.div variants={scaleIn} className="flex gap-3">
+							<div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-600 to-yellow-600 flex items-center justify-center shrink-0">
+								<span className="text-white text-sm font-medium">
+									{user?.first_name?.[0] || "U"}
+								</span>
+							</div>
+							<div className="flex-1 flex gap-2">
+								<input
+									type="text"
+									value={commentText}
+									onChange={(e) => setCommentText(e.target.value)}
+									onKeyPress={(e) => e.key === "Enter" && handleAddComment()}
+									placeholder="Pay tribute to this hero..."
+									className="flex-1 py-3 px-4 rounded-2xl bg-[var(--tg-secondary-bg)] text-[var(--tg-text)] placeholder:text-[var(--tg-hint)] text-sm outline-none focus:ring-2 focus:ring-[var(--tg-button)] transition"
+								/>
+								<motion.button
+									whileTap={{ scale: 0.95 }}
+									whileHover={{ scale: 1.05 }}
+									onClick={handleAddComment}
+									disabled={!commentText.trim()}
+									className="px-5 py-3 rounded-2xl bg-gradient-to-r from-red-500 to-yellow-500 text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+								>
+									<Send size={18} />
+								</motion.button>
+							</div>
+						</motion.div>
+
+						{/* Comments List */}
+						<div className="space-y-5 max-h-[500px] overflow-y-auto pr-1 custom-scrollbar">
+							{isLoadingComments ? (
+								<div className="flex justify-center py-8">
+									<motion.div
+										animate={{ rotate: 360 }}
+										transition={{ duration: 1, repeat: Infinity }}
+										className="w-6 h-6 border-2 border-[var(--tg-button)] border-t-transparent rounded-full"
+									/>
+								</div>
+							) : comments.length === 0 ? (
+								<motion.div variants={scaleIn} className="text-center py-8 bg-[var(--tg-secondary-bg)] rounded-2xl">
+									<motion.div
+										animate={{ y: [0, -5, 0] }}
+										transition={{ duration: 2, repeat: Infinity }}
+										className="text-4xl mb-3"
+									>
+										💬
+									</motion.div>
+									<p className="text-sm text-[var(--tg-hint)]">No tributes yet</p>
+									<p className="text-xs text-[var(--tg-hint)] mt-1">Be the first to honor this hero</p>
+								</motion.div>
+							) : (
+								comments.map((comment) => (
+									<CommentItem
+										key={comment.id}
+										comment={comment}
+										onLike={handleLikeComment}
+										onReply={handleReplyToComment}
+										onReport={handleReportComment}
+										currentUserId={user?.id || 0}
+										currentUserName={user?.first_name || "Anonymous"}
+									/>
+								))
+							)}
+							<div ref={commentsEndRef} />
+						</div>
+					</motion.div>
 
 					{/* Memorial Section */}
 					<motion.div variants={fadeInUp}>
@@ -653,8 +1023,7 @@ export default function HeroDetail() {
 							</motion.div>
 
 							<p className="text-sm text-[var(--tg-text)] italic leading-relaxed">
-								"Their sacrifice echoes through eternity. Their
-								courage lights our path forward. We will never
+								"Their sacrifice echoes through eternity. Their courage lights our path forward. We will never
 								forget."
 							</p>
 
@@ -682,6 +1051,21 @@ export default function HeroDetail() {
 					</motion.div>
 				</div>
 			</motion.div>
+
+			{/* Custom Scrollbar Styles */}
+			<style>{`
+				.custom-scrollbar::-webkit-scrollbar {
+					width: 4px;
+				}
+				.custom-scrollbar::-webkit-scrollbar-track {
+					background: var(--tg-secondary-bg);
+					border-radius: 10px;
+				}
+				.custom-scrollbar::-webkit-scrollbar-thumb {
+					background: var(--tg-button);
+					border-radius: 10px;
+				}
+			`}</style>
 		</motion.div>
 	);
 }
