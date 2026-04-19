@@ -1,7 +1,6 @@
 import { useTelegramWebApp } from '@telegram-web-app/react'
 
 import { useEffect } from 'react'
-import { useTelegramWebApp } from '@telegram-web-app/react'
 
 type Props = {
   text: string
