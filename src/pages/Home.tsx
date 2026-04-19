@@ -7,7 +7,6 @@ import { type RootState } from '../app/store';
 
 export default function Home() {
   const navigate = useNavigate();
-  const { user } = useTelegram();
   const heroes = useSelector((state: RootState) => state.heroes.filteredList);
   const featuredHeroes = heroes.slice(0, 5);
   
