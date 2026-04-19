@@ -99,7 +99,7 @@ export default function Profile() {
   const { mode } = useSelector((state: RootState) => state.theme);
   const [currentTime, setCurrentTime] = useState('');
   
-  const favoriteHeroes = list.filter(hero => favorites.includes(hero.id));
+  const favoriteHeroes = list.filter(hero => favorites.includes(hero?.id));
   
   useEffect(() => {
     const updateTime = () => {
