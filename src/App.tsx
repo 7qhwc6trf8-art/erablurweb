@@ -2,7 +2,7 @@ import { useTelegramWebApp } from '@telegram-web-app/react'
 
 function App() {
   useTelegramWebApp()
-  const user = window.Telegram.WebApp.initDataUnsafe.user;
+  const user = window?.Telegram?.WebApp?.initDataUnsafe?.user;
   const tg = useTelegramWebApp().WebApp;
 
   return (
