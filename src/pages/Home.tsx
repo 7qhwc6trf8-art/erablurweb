@@ -14,23 +14,13 @@ export default function Home() {
   return (
     <div className="pb-20">
       {/* Welcome Section */}
-      <div className="px-4 py-6">
+      <div className="mb-5">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center"
         >
-          <h1 className="text-2xl font-bold text-[var(--tg-text)]">
-            🇦🇲 Heroes Museum
-          </h1>
-          <p className="text-sm text-[var(--tg-hint)] mt-1">
-            Honoring our national heroes
-          </p>
-          {user && (
-            <p className="text-sm text-[var(--tg-hint)] mt-2">
-              Welcome, {user.first_name}! 🕊️
-            </p>
-          )}
+          <img src="/banner.png" alt="" />
         </motion.div>
       </div>
       
