@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Toaster } from 'react-hot-toast';
 
@@ -44,12 +44,6 @@ export const pageVariants: Variants = {
     },
   },
 }
-
-const childVariants = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.3 } },
-  exit: { opacity: 0, y: -20, transition: { duration: 0.2 } },
-};
 
 // Floating particles animation
 const FloatingParticles = () => (
@@ -164,7 +158,6 @@ function AnimatedRoutes() {
 function AppContent() {
   const { tg } = useTelegram();
   const { mode } = useSelector((state: RootState) => state.theme);
-  const dispatch = useDispatch();
   
   useEffect(() => {
     tg.ready();

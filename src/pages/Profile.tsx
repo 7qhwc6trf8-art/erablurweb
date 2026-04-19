@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { type RootState } from '../app/store';
 import { useTelegram } from '../hooks/useTelegram';
 import { setTheme } from '../app/features/theme/themeSlice';
-import { Heart, Sun, Moon, Monitor, TrendingUp, Award, Settings, LogOut } from 'lucide-react';
+import { Heart, Sun, Moon, Monitor, TrendingUp, Award, LogOut } from 'lucide-react';
 import HeroCard from '../ui/HeroCard';
 import { useNavigate } from 'react-router-dom';
 

@@ -134,7 +134,7 @@ export default function Home() {
 						value: "∞",
 						color: "#8b5cf6",
 					},
-				].map((stat, index) => (
+				].map((stat) => (
 					<motion.div
 						key={stat.label}
 						whileHover={{ y: -5, scale: 1.02 }}
