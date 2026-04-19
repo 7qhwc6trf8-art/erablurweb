@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { type RootState } from '../app/store';
 import HeroCard from '../ui/HeroCard';
 import SearchBar from '../ui/SearchBar';
-import { Users, Filter } from 'lucide-react';
+import { Users } from 'lucide-react';
 import { useState } from 'react';
 
 const listVariants = {
@@ -20,7 +20,6 @@ const listVariants = {
 export default function Heroes() {
   const navigate = useNavigate();
   const { filteredList, searchQuery } = useSelector((state: RootState) => state.heroes);
-  const [showFilters, setShowFilters] = useState(false);
   
   return (
     <motion.div
