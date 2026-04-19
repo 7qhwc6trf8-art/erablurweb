@@ -23,11 +23,9 @@ import {
 	Sparkles,
 	Shield,
 	Star,
-	TrendingUp,
 	Users,
 	Flag,
 	Clock,
-	MapPin,
 } from "lucide-react";
 import { useTelegram } from "../hooks/useTelegram";
 import { useState, useEffect, useRef } from "react";
