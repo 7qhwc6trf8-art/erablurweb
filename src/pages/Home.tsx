@@ -1,58 +1,64 @@
-import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { type RootState } from "../app/store";
-import HeroCard from "../ui/HeroCard";
+import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { useTelegram } from '../hooks/useTelegram';
+import HeroCard from '../ui/HeroCard';
+import { useSelector } from 'react-redux';
+import { type RootState } from '../app/store';
 
 export default function Home() {
-	const navigate = useNavigate();
-	const heroes = useSelector((state: RootState) => state.heroes.filteredList);
-
-	return (
-		<div className="page-container">
-			{/* Hero Header Section */}
-			<header className="content-padding pt-12 pb-8">
-				<motion.div
-					initial={{ opacity: 0, y: -10 }}
-					animate={{ opacity: 1, y: 0 }}
-				>
-					<h1 className="text-4xl font-black tracking-tight">
-						Museum
-					</h1>
-					<p className="text-[var(--tg-hint)] mt-2 text-lg">
-						Discover Armenian Legends
-					</p>
-				</motion.div>
-			</header>
-
-			{/* Featured Section */}
-			<section className="content-padding">
-				<div className="flex justify-between items-end mb-6">
-					<h2 className="text-xl font-bold">Greatest Heroes</h2>
-					<span className="text-[var(--tg-button)] text-sm font-medium">
-						View All
-					</span>
-				</div>
-
-				<div className="flex flex-col gap-5">
-					{" "}
-					{/* Increased gap */}
-					{heroes.map((hero, index) => (
-						<motion.div
-							key={hero.id}
-							initial={{ opacity: 0, x: -20 }}
-							animate={{ opacity: 1, x: 0 }}
-							transition={{ delay: index * 0.1 }}
-						>
-							<HeroCard
-								index={index}
-								hero={hero}
-								onClick={() => navigate(`/hero/${hero.id}`)}
-							/>
-						</motion.div>
-					))}
-				</div>
-			</section>
-		</div>
-	);
+  const navigate = useNavigate();
+  const { user } = useTelegram();
+  const heroes = useSelector((state: RootState) => state.heroes.filteredList);
+  const featuredHeroes = heroes.slice(0, 5);
+  
+  return (
+    <div className="pb-20">
+      {/* Welcome Section */}
+      <div className="px-4 py-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center"
+        >
+          <h1 className="text-2xl font-bold text-[var(--tg-text)]">
+            🇦🇲 Heroes Museum
+          </h1>
+          <p className="text-sm text-[var(--tg-hint)] mt-1">
+            Honoring our national heroes
+          </p>
+          {user && (
+            <p className="text-sm text-[var(--tg-hint)] mt-2">
+              Welcome, {user.first_name}! 🕊️
+            </p>
+          )}
+        </motion.div>
+      </div>
+      
+      {/* Featured Heroes */}
+      <div className="px-4">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-base font-semibold text-[var(--tg-text)]">
+            Featured Heroes
+          </h2>
+          <button
+            onClick={() => navigate('/heroes')}
+            className="text-sm text-[var(--tg-button)]"
+          >
+            See all →
+          </button>
+        </div>
+        
+        <div className="space-y-3">
+          {featuredHeroes.map((hero, index) => (
+            <HeroCard
+              key={hero.id}
+              hero={hero}
+              onClick={() => navigate(`/hero/${hero.id}`)}
+              index={index}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
