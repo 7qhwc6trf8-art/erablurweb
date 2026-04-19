@@ -1,12 +1,11 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Toaster } from 'react-hot-toast';
 import { AnimatePresence } from 'framer-motion';
 
 import { useTelegram } from './hooks/useTelegram';
-import { RootState } from './app/store';
-import { setTheme } from './app/features/theme/themeSlice';
+import { type RootState } from './app/store';
 
 import Header from './ui/Header';
 import BottomNav from './ui/BottomNav';
@@ -19,7 +18,6 @@ import About from './pages/About';
 function App() {
   const { tg } = useTelegram();
   const { mode } = useSelector((state: RootState) => state.theme);
-  const dispatch = useDispatch();
   
   useEffect(() => {
     tg.ready();
