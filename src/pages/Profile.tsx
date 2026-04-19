@@ -19,7 +19,6 @@ import {
   Crown,
   Shield,
   Sparkles,
-  ChevronRight,
   Bell,
   Lock,
   Globe,
@@ -29,7 +28,7 @@ import HeroCard from '../ui/HeroCard';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { buttonHover, fadeInUp, pageVariants, slideInLeft } from './HeroDetail';
+import { buttonHover, fadeInUp, pageVariants } from './HeroDetail';
 
 const staggerContainer = {
   animate: {
@@ -90,16 +89,6 @@ function StatCard({ icon: Icon, label, value, color, delay }: StatCardProps) {
   );
 }
 
-// ==================== SETTING ITEM COMPONENT ====================
-
-interface SettingItemProps {
-  icon: React.FC<{ size?: number }>;
-  title: string;
-  subtitle?: string;
-  onClick?: () => void;
-  isLast?: boolean;
-}
-
 // ==================== MAIN PROFILE COMPONENT ====================
 
 export default function Profile() {
@@ -132,13 +121,6 @@ export default function Profile() {
     { icon: Heart, label: 'Favorites', value: favorites.length, color: '#ef4444' },
     { icon: Award, label: 'Heroes', value: list.length, color: '#8b5cf6' },
     { icon: TrendingUp, label: 'Streak', value: '7 days', color: '#10b981' },
-  ];
-  
-  const settingsItems = [
-    { icon: Bell, title: 'Notifications', subtitle: 'Daily hero reminders' },
-    { icon: Globe, title: 'Language', subtitle: 'English / Հայերեն' },
-    { icon: Lock, title: 'Privacy', subtitle: 'Manage your data' },
-    { icon: MessageCircle, title: 'Support', subtitle: 'Get help' },
   ];
   
   const handleLogout = () => {

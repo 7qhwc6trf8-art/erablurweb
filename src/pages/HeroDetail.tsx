@@ -26,7 +26,6 @@ import {
 	Users,
 	Flag,
 	Clock,
-	MapPin,
 	MessageCircle,
 	Send,
 	MoreVertical,
@@ -37,18 +36,6 @@ import {
 import { useTelegram } from "../hooks/useTelegram";
 import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
-
-// ==================== TYPES ====================
-
-interface HeroData {
-	name: { first: string; last: string };
-	date: { birth: string; dead: string };
-	region: string;
-	war: string;
-	img_url: string;
-	bio_link: string;
-	bio: string;
-}
 
 interface Reply {
 	id: string;
@@ -209,8 +196,6 @@ function CommentItem({
 	onLike,
 	onReply,
 	onReport,
-	currentUserId,
-	currentUserName,
 }: CommentItemProps) {
 	const [isReplying, setIsReplying] = useState(false);
 	const [replyText, setReplyText] = useState("");
@@ -473,7 +458,7 @@ export default function HeroDetail() {
 			setBioParagraphs(paragraphs);
 
 			// Extract achievements from bio
-			const extractedAchievements = extractAchievements(heroData.bio);
+			const extractedAchievements = extractAchievements(heroData?.bio);
 			setAchievements(extractedAchievements);
 		}
 	}, [heroData]);
